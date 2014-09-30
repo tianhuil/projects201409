@@ -9,7 +9,7 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.linear_model import SGDClassifier, LogisticRegression,\
         LinearRegression, Ridge, Lasso
 from sklearn.feature_selection import SelectKBest
-from sklearn.svm import SVC, LinearSVC
+from sklearn.svm import SVC, LinearSVC, SVR
 from sklearn.preprocessing import StandardScaler
 from sklearn import base
 
