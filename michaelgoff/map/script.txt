@@ -1,0 +1,25 @@
+Video script
+
+[Show current system map] I have analyzed the New York CitiBike usage data to model the effectiveness of bike stations and find the best opportunities for expansion.
+
+[Show the propsed expansion] CitiBike's proposed expansion in Brooklyn and Queens has the potential to add X new riders to the system, including Y new riders from existing stations in Brooklyn.
+
+[Show map of relevant area] In addition, expansion from the current northern boundary at 60th Street to Nth Street could add Z new riders to the system.
+
+[Screenshot of the app] To analyze the system, I built a web app with the Google Maps API that displays vital usage statistics about the stations and overlays demographic data from the US census.
+
+[Movie of setting demographic parameters] The user can overlay information such as population density and the proportion of rental properties in a neighborhood.
+
+[Movie of setting other parameters.  End with average distance traveled] In addition, the user can change the size and opacity of stations on the map to illustrate the total ridership, ridership by time of day, ridership by gender, average time and distance of trips, and other parameters
+
+[Show destinations from Station 323] The user can also visualize where people go from a particular station.  Let's see where people go from this station in Brooklyn, from which people travel farther than from others in the area.
+
+In addition, I studied how CitiBike usage breaks down by gender.
+
+[Show relevant charts.] Men make a disproportionate share of ridership.  Compared to men, women tend to ride more on weekends, ride less during peak commute times, ride more in the summer and fall, and make longer trips.  The data indicates that, compared to men, women ride more for errands and recreation and less for commuting.  This is reflected in higher female ridership in Brooklyn.  The Brooklyn and Queens expansion is should increase overall female ridership by W%.
+
+************************************************
+
+Urbanful article on female ridership: http://urbanful.org/2014/10/01/what-bikings-gender-gap-really-says-about-america/?utm_source=Urbanful+Master+List&utm_campaign=9f1fdf873a-October_1_Daily_Subscribers&utm_medium=email&utm_term=0_fdf64fbc84-9f1fdf873a-197272353
+
+Buzzfeed News analysis: http://www.buzzfeed.com/jsvine/these-maps-show-a-massive-gender-gap-in-bicycle-riding#3n2wrc
