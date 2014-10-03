@@ -1,0 +1,15 @@
+{% extends "bandura.html" %}
+{% block results %}
+{% if song_url %}
+
+    <ul>
+        {{song_url}}
+    </ul>
+    <audio src={{song_url}} controls="controls" autoplay preload="auto">
+        Your browser does not support the audio element.
+    </audio>
+
+{% else %}
+<p>Song's URL was not found!</p>
+{% endif %}
+{% endblock %}
