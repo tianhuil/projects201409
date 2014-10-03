@@ -1,7 +1,5 @@
 .PHONY: datafiles
 
-all: datafiles
-
 datafiles:
 	wget https://resources.lendingclub.com/LoanStats3a.csv.zip\
     --no-check-certificate -P ./data

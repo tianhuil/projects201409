@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Play</title>
+    </head>
+    <body>
+        <h3>Welcome to</h3><h1> Bandura</h1>
+        <form action="/play_test" method="POST">
+            <input type="text" placeholder="Enter 7digital ID" id="user_play" name="user_play" required value="Enter 7digital ID"/>
+            <button type="submit" name="choice" value="PlayThis">Play this</button>
+            <button type="submit" name="choice" value="PlayNext">Play next</button>
+        </form>
+        {% block results %}{% endblock %}
+    </body>
+</html>

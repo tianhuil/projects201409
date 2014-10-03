@@ -12,9 +12,9 @@ def load_data_file(fname='data/LoanStats3a.csv'):
     """
     subgrades = [a + n for a in 'ABCDEFG' for n in '12345']
 
-    # Data through 2011
+    # Load all 36 month loans
     dat = pd.read_csv(fname, skiprows=1)
-    use = isfinite(dat.member_id)
+    use = isfinite(dat.member_id) & (dat.term == ' 36 months')
     dat = dat[use]
 
     # Codes for status of loans
@@ -85,9 +85,17 @@ def load_data_file(fname='data/LoanStats3a.csv'):
     dat['revol_util'] = dat['revol_util'].apply(percent2float)
     dat['is_inc_v'] = dat['is_inc_v'] != 'Not Verified'
 
+    def parse_date(x): return pd.datetime.strptime(x, '%Y-%m-%d')
+    accept = dat.accept_d.apply(parse_date)
+    last   = dat.last_pymnt_d.fillna(dat.accept_d).apply(parse_date)
+    dat['loan_lifetime']  = ((last - accept) / timedelta64(1, 'D'))
+    today  = pd.datetime.today()
+    dat['loan_age']    = ((today - accept) / timedelta64(1, 'D')).apply(round)
+
     # Get rid of null values
     dat.desc = dat.desc.fillna(value='')
     dat.total_acc = dat.total_acc.fillna(value=0.)
+    dat.annual_inc = dat.annual_inc.fillna(value=0.)
 
     return dat
 

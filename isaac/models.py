@@ -1,13 +1,16 @@
+import os
+import cPickle as pkl
+from matplotlib.pyplot import *
 
 from sklearn.pipeline import Pipeline, FeatureUnion
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.grid_search import GridSearchCV
 from sklearn.decomposition import PCA
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
-from sklearn.linear_model import SGDClassifier
+from sklearn.linear_model import SGDClassifier, LogisticRegression,\
+        LinearRegression, Ridge, Lasso
 from sklearn.feature_selection import SelectKBest
-from sklearn.linear_model import LogisticRegression
-from sklearn.svm import SVC, LinearSVC
+from sklearn.svm import SVC, LinearSVC, SVR
 from sklearn.preprocessing import StandardScaler
 from sklearn import base
 
@@ -16,19 +19,30 @@ class ColumnSelectTransformer(base.BaseEstimator, base.TransformerMixin):
     """
     Transformer to select only particular columns from a dataset.
     """
-
     def __init__(self, columns=[], astype=None):
         self.columns = columns
         self.astype = astype
-
     def fit(self, X, y=None):
         return self
-
     def transform(self, X):
         if self.astype is None:
             return X[:,self.columns]
         else:
             return X[:,self.columns].astype(self.astype)
+
+class EstimatorTransformer(base.BaseEstimator, base.TransformerMixin):
+    """
+    Wrap an estimator so that its transform function mirrors the predictor.
+    """
+    def __init__(self, estimator=None):
+        self.estimator = estimator
+    def fit(self, X, y=None):
+        self.estimator.fit(X, y)
+        return self
+    def transform(self, X):
+        return self.estimator.predict(X).reshape(-1, 1)
+    def _get_param_names(self):
+        return ['estimator']
 
 
 def column_locs(df, columns):
@@ -75,4 +89,3 @@ def featurize(df, params={}, fit=True,
     data = df[columns].fillna(-1).as_matrix().astype(float)
     alldata = concatenate((data, textdat.todense()), axis=1)
     return alldata, y
-
