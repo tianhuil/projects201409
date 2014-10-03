@@ -1,5 +1,6 @@
 import os
 import cPickle as pkl
+from matplotlib.pyplot import *
 
 from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
@@ -88,4 +89,3 @@ def featurize(df, params={}, fit=True,
     data = df[columns].fillna(-1).as_matrix().astype(float)
     alldata = concatenate((data, textdat.todense()), axis=1)
     return alldata, y
-

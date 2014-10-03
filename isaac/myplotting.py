@@ -10,7 +10,7 @@ import itertools as itt
 def setfigdefaults():
   mpl.rcParams['axes.linewidth'] = 1
   mpl.rcParams['font.size'] = 14
-  mpl.rcParams['font.family'] = 'sans-serif'
+  #mpl.rcParams['font.family'] = 'sans-serif'
   mpl.rcParams['font.sans-serif'] = ['Arial']
   mpl.rcParams['svg.fonttype'] = 'none'
   mpl.rcParams['pdf.fonttype'] = 42
