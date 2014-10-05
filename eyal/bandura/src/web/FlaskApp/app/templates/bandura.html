@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>Bandura</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../../../bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap theme -->
+    <link href="../../../bootstrap-theme.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="theme.css" rel="stylesheet">
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]
+    <script src="../../assets/js/ie-emulation-modes-warning.js"></script>
+   -->
+ 
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+<title>Bandura</title>
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function(){
+        //alert("dgfdgdfg")
+        var audio1 = document.getElementById('player');
+        audio1.volume=0.8
+        audio1.addEventListener('pause',function(){
+            //alert("inside")
+        $("#play_next").click();
+        });
+        //var audio2 = document.getElementById('player');
+        audio1.addEventListener('error',function(){
+            //alert("inside")
+        $("#play_next").click();
+        });
+    });
+    </script>
+
+  </head>
+
+  <body role="document">
+
+
+
+
+    <h1>Bandura</h1>
+    <h3>The personalized exploratory radio station</h3>
+
+    <form action="/bandura_search" method="POST">
+        <input type="submit" id="search"      name="search" value="Search">
+        <input type="text"   id="search_term" name="search_term" value={{search_term}}>
+    </form>
+    
+    <p>Currently playing: {{id_7digital}}, {{title}}, {{artist}} </p>
+    <audio src={{song_url}} id="player" style="width:550px; margin: 0; display:block;" autoplay preload="auto" type="audio/mp3" controls volume="0.1"></audio>
+    
+    <form action="/bandura" method="POST" name="controls" id="controls">
+        <p>Suggestions: </p>
+        
+        <input type="submit" id="play_next"       name="play_next" value="Play next"><br>
+
+        {% if n0_id_7digital %}<input type="radio" name="suggestions" id="suggestions" value=0 checked>{{n0_id_7digital}}, {{n0_title}}, {{n0_artist}}{% endif %}<br>
+        {% if n1_id_7digital %}<input type="radio" name="suggestions" id="suggestions" value=1>{{n1_id_7digital}}, {{n1_title}}, {{n1_artist}}{% endif %}<br>
+        {% if n2_id_7digital %}<input type="radio" name="suggestions" id="suggestions" value=2>{{n2_id_7digital}}, {{n2_title}}, {{n2_artist}}{% endif %}<br>
+        {% if n3_id_7digital %}<input type="radio" name="suggestions" id="suggestions" value=3>{{n3_id_7digital}}, {{n3_title}}, {{n3_artist}}{% endif %}<br>
+
+        <input type="range" id="diffusion" name="noisyness" min="-2" max="5" step="0.2" value={{noisyness}} orient="vertical"
+        style="width: 20px; height: 100px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">noisyness
+        
+        <input type="range" id="cons_tempo" name="cons_tempo" min="0" max="1" step="0.01" value={{cons_tempo}} orient="vertical"
+        style="width: 10px; height: 100px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">tempo
+        <input type="range" id="cons_loudness" name="cons_loudness" min="0" max="1" step="0.01" value={{cons_loudness}} orient="vertical"
+        style="width: 10px; height: 100px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">loudness
+        <input type="range" id="cons_year" name="cons_year" min="0" max="1" step="0.01" value={{cons_year}} orient="vertical"
+        style="width: 10px; height: 100px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">year
+        <input type="range" id="cons_artist_familiarity" name="cons_artist_familiarity" min="0" max="1" step="0.01" value={{cons_artist_familiarity}} orient="vertical"
+        style="width: 10px; height: 100px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">artist familiarity
+        
+        <input type="range" id="cons_valence" name="cons_valence" min="0" max="1" step="0.01" value={{cons_valence}} orient="vertical"
+        style="width: 10px; height: 100px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">valence
+        <input type="range" id="cons_energy" name="cons_energy" min="0" max="1" step="0.01" value={{cons_energy}} orient="vertical"
+        style="width: 10px; height: 100px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">energy
+        <input type="range" id="cons_danceability" name="cons_danceability" min="0" max="1" step="0.01" value={{cons_danceability}} orient="vertical"
+        style="width: 10px; height: 100px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">danceability
+        <input type="range" id="cons_acousticness" name="cons_acousticness" min="0" max="1" step="0.01" value={{cons_acousticness}} orient="vertical"
+        style="width: 10px; height: 100px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">acousticness
+        <input type="range" id="cons_liveness" name="cons_liveness" min="0" max="1" step="0.01" value={{cons_liveness}} orient="vertical"
+        style="width: 10px; height: 100px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">liveness
+        <input type="range" id="cons_speechiness" name="cons_speechiness" min="0" max="1" step="0.01" value={{cons_speechiness}} orient="vertical"
+        style="width: 10px; height: 100px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">speechiness
+        <input type="range" id="cons_instrumentalness" name="cons_instrumentalness" min="0" max="1" step="0.01" value={{cons_instrumentalness}} orient="vertical"
+        style="width: 10px; height: 100px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">instrumentalness
+
+    </form>
+
+
+
+    <div style="height:300px;width:1200px;border:1px solid #ccc;font:12px/12px Courier;overflow:auto;">
+    {% for songo in history_future %}
+    {{ songo }}<br>
+    {% endfor %}
+    <b>{{ history_cur }}</b><br>
+    {% for songo in history_past %}
+    {{ songo }}<br>
+    {% endfor %}
+    </div>
+
+
+
+
+  </body>
+</html>
+
