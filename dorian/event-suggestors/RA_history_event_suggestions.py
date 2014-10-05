@@ -1,4 +1,12 @@
+# This program loads in all of the previous event history and then for each userid, will output
+# userid, events_dj1-5, events_promoter1-5, events_venue1-5 where events_dj,events_promoter and events_venue
+# are future events which have djs, promoters and venues in userid's history.
+
 import pandas as pd
+import numpy as np
+import itertools
+
+# Load in all event history from the 4 files below and merge them.
 df_4 = pd.read_csv('RAevent_data4.csv', delim_whitespace=True,error_bad_lines=False)
 df_3 = pd.read_csv('RAevent_data3.csv', delim_whitespace=True,error_bad_lines=False)
 df_2 = pd.read_csv('RAevent_data2.csv', delim_whitespace=True,error_bad_lines=False)
@@ -6,23 +14,29 @@ df_1 = pd.read_csv('RAevent_data1.csv', delim_whitespace=True,error_bad_lines=Fa
 mylist = [df_1, df_2, df_3, df_4]
 df_f = pd.concat(mylist).drop_duplicates()
 
-future_urls = df_4.drop_duplicates()[-2500:]
-import numpy as np
-import itertools
+# These are the future urls - must be modified depending on date.
+future_urls = df_4.drop_duplicates()[-2400:]
+
+# List all of the users past djs.
 def get_djs(userid):
     df_user = df_f[df_f['userid']==userid]
     mylist = list(df_user['dj1']) + list(df_user['dj2']) + list(df_user['dj3'])
     return mylist
+
+# List all of the users past promoters.
 def get_promoters(userid):
     df_user = df_f[df_f['userid']==userid]
     mylist = list(df_user['promoter1']) + list(df_user['promoter2']) + list(df_user['promoter3'])
     return mylist
 
+# List all of the users past venues.
 def get_venues(userid):
     df_user = df_f[df_f['userid']==userid]
     mylist = list(df_user['venue'])
     return mylist
 
+
+# Find all future events which have a dj in the list of userids dj list gotten from get_djs().
 def future_dj(userid):
     dj_list = list(get_djs(userid))
     event_list = []
@@ -39,6 +53,7 @@ def future_dj(userid):
                 dj_favs.append(dj)
     return list(itertools.chain(*event_list)), dj_favs, userid
 
+# Find all future events which have a promoter in the list of userid's promoter list gotten from get_promoters()
 def future_promoters(userid):
     promoter_list = list(get_promoters(userid))
     event_list = []
@@ -55,6 +70,8 @@ def future_promoters(userid):
                 promoter_favs.append(promoter)
     return list(itertools.chain(*event_list)), promoter_favs, userid
     
+# Find all future events with venue userid has attended previously.
+
 def future_venue(userid):
     venue_list = list(get_venues(userid))
     event_list = []
@@ -69,6 +86,7 @@ def future_venue(userid):
 
 # Next need to find future events with these particular performers!
 
+# Load three arrays, url_djs, url_promoters, url_venues with the above data, up to a maximum of 5 urls.
 def generate_favs(userid):
     urls1, djs, uid = future_dj(userid)
     urls2, promoters, uid = future_promoters(userid)
@@ -79,13 +97,20 @@ def generate_favs(userid):
     url_djs = []
     url_promoters = []
     url_venues = []
+
+    # Fill url_djs array with suggested urls.
     for i in range(0, min(length1,5)):
         url_djs.append(urls1[i])
+
+    # Fill url_promoters with suggested urls.
     for i in range(0, min(length2,5)):
         url_promoters.append(urls2[i])
+
+    # Fill url_venues with suggested urls.
     for i in range(0, min(length3,5)):
         url_venues.append(urls3[i])
       
+    # If there aren't enough, simply put None as a place holder for each.
     if length1 < 5:
         for i in range(length1, 5):
             url_djs.append('None')
@@ -96,13 +121,11 @@ def generate_favs(userid):
         for i in range(length3, 5):
             url_venues.append('None')
     return url_djs, url_promoters, url_venues
-userid = 347080
-#print userid, generate_favs(userid)
-result = generate_favs(userid)
-print userid,
-for i in range(0,3):
-    for j in range(0,5):
-        print result[i][j],
+
+
+
+# Go through all users, and list suggestions as userid, event_djs, event_promoters, event_venues. This data will be
+# loaded into SQL after being outputted to file.
 
 for user in list(df_f['userid'].drop_duplicates()):
 	result = generate_favs(user)
