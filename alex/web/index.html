@@ -81,7 +81,7 @@
 					<p> &nbsp;</p>
 					<p> &nbsp;</p>
 					<h1>Dwelling In Crime</h1>
-					<p><font size="4">An interactive Chicago crime and housing price <a href="#dataMap">plotting tool</a> that places a dollar figure on the value of improving crime locally.</font></p>
+					<p><font size="4">An interactive Chicago crime and housing price <a href="#map">plotting tool</a> that places a dollar figure on the value of improving crime locally.</font></p>
 				</div>
 			</div>
 		  </div>
@@ -794,7 +794,7 @@
 			  &nbsp;<br>
 			  <b>Instructions: </b>
 			  <ol>
-				<li>Choose a map layer <br>(below)</li>
+				<li>Choose a map layer <br>(buttons below)</li>
 				<li>Explore the map</li>
 				<li>For more information, <br>click on grid squares</li>
 			  </ol>
@@ -821,6 +821,7 @@
 			  </p>
 			</div>
 		  </div>
+		  <b>Grid Size: </b> .63 by .67 miles (width by height)
 		</div>
 	</section>
 	
@@ -844,8 +845,8 @@
 				<tbody>
 				  <tr>
 					<td>
-						All Reported Crimes in Chicago, 2001-present
-						<br>(>5.5 million Homicides, Burglaries, Battery, etc.)
+						All reported crimes in Chicago, 2001-present
+						<br>(>5.5 million reported crimes by type including homicides, burglaries, narcotics crimes, etc.)
 					</td>
 					<td>
 						<a href="https://data.cityofchicago.org/Public-Safety/Crimes-2001-to-present/ijzp-q8t2" target="new">
@@ -856,15 +857,16 @@
 				  </tr>
 				  <tr>
 					<td>
-						Chicago Condo/Apt/Townhouse Sales Over The Last 9 Months
-						<br>(>7500 geolocated sale prices)
+						Chicago condo/Apt./townhouse sales over the last 9 months
+						<br>(>7500 geotagged sale prices)
 					</td>
 					
-					<td>Publicly Scraped from <a href="http://www.trulia.com" target="new">Trulia</a></td>
+					<td>Publicly scraped from <a href="http://www.trulia.com" target="new">Trulia</a></td>
 				  </tr>
 				  <tr>
 					<td>
-						Chicago Public School Report Cards (2011-12)
+						Chicago public school report cards (2011-12)
+						<br>(566 geotagged schools, values range from 20 for the worst schools, to 80 for the very best schools)
 					</td>
 					<td>
 						<a href="https://data.cityofchicago.org/Education/Chicago-Public-Schools-Progress-Report-Cards-2011-/9xs2-f89t" target="new">
@@ -873,23 +875,25 @@
 					</td>
 				  </tr>
 				  <tr>
-					<td>Walk, Bike, Transit Scores</td>
 					<td>
-						Merged From <a href="http://www.walkscore.com/IL/Chicago" target="new">
+						Local talk, bike, and transit ratings
+					</td>
+					<td>
+						Merged from <a href="http://www.walkscore.com/IL/Chicago" target="new">
 							walkscore.com/IL/Chicago</a> and 
 							<a href="http://en.wikipedia.org/wiki/Community_areas_in_Chicago" target="new">
 							wikipedia data.</a>
 					</td>
 				  </tr>
 				  <tr>
-					<td>Community Populations (and Population Density)</td>
-					<td>Extrapolated from 2014 walkscore.com Estimates and Cencus Data</td>
+					<td>Community populations (and population density)</td>
+					<td>Extrapolated from current <a href="http://www.walkscore.com/IL/Chicago" target="new">walkscore.com</a> estimates and <a href="http://www.cityofchicago.org/dam/city/depts/zlup/Zoning_Main_Page/Publications/Census_2010_Community_Area_Profiles/Census_2010_and_2000_CA_Populations.pdf">cencus data</a></td>
 				  </tr>
 
 
 				  <tr>
-					<td>Distance From Central Business District</td>
-					<td>Internal Calculation</td>
+					<td>Distance from central business district</td>
+					<td>Internal calculation</td>
 				  </tr>
 				</tbody>
 			</table>
@@ -914,15 +918,21 @@
 						<li>Public School Ratings</li>
 						<li>Distance From Chicago Center</li>
 					</ul>
-					<li>After using Linear Regression and Lasso Regression, a <b>Piecewise Linear Regression Model</b> (figure right) worked best and was ultimated used to model housing prices</li>
-					<li><b>Bootstrapping</b> was used to avoid overfitting and calculate coefficient standard deviations</li>
-					<li>To calculate the <b>value added</b> of improving crime locally, housing prices in each grid were compared to the predicted price in the grid if homicide rate were at the city-wide average
+					<li>Linear and Lasso Regression on the entire dataset and a filtered dataset were initially used to train a housing price engine, although a <b>Piecewise Linear Regression Model</b> (figure right) was ultimated used instead</li>
+					<ul>
+						<li>Each data point cooresponds to one grid point</li>
+						<li>Goodness of fits for models with a quadradic loss function are shown <a href="#R^2">below</a></li>
+					</ul>
+					<li><b>Bootstrapping</b> was used to avoid overfitting and to calculate <a href="#parameters">coefficients and their standard deviations</a></li>
+					<li>To calculate the <b>value added</b> of improving crime locally (shown by clicking on grids in the <a href="#map">data map</a>), housing prices in each grid were compared to the predicted price in the grid if homicide rate were at the city-wide average
 				</ul>
 			</div>
 			<div class="col-md-7">
 				<p> &nbsp;</p>
 				<p> &nbsp;</p>
 				<p> &nbsp;</p>
+				<p> &nbsp;</p>
+				
 				<img src="fig/LRMscatterPlots_v2.png" width="100%" alt="scatter plots">
 			</div>
 		</div>
@@ -939,10 +949,10 @@
 		</div>
 		<div class="row">
 			<div class="col-md-4">
-				<img src="fig/corrCoef.png" width="100%" alt="First Slide">
+				<img src="fig/corrCoef.png" width="100%" alt="Correlation Matrix">
 			</div>
 			<div class="col-md-8">
-				The correlation matrix (figure left) determines which regressors are correlated amongst themselves.  
+				The absolute correlation matrix (figure left) determines which regressors are correlated amongst themselves.  
 				Using the rule that regressor correlation should be "blue" (roughly speaking), 
 				it is reasonable to use the following rules for choosing variables to regress over
 				<ul>
@@ -964,12 +974,20 @@
 			<div class="col-md-4">
 				<p> &nbsp;</p>
 				<p> &nbsp;</p>
-				<h3>Fitting Metrics</h3>
+				<h3>Goodness of Fit</h3>
 			</div>
 		</div>
 		<div class="row">
-			<div class="col-md-4">
-				
+			<div class="col-md-3">
+				<img src="fig/rSq.png" width="100%" alt="R Squared">
+			</div>
+			<div class="col-md-9">
+				<h4>Comparison Of Models:<br>&nbsp;</h4>
+				<ul>
+					<li><b>Lin. Reg:</b> Linear Regression over all model features (Homicide Rate, Public School Grade, and Distance from Chicago Center). </li>
+					<li><b>Filtered Lin. Reg:</b> Linear Regression over all model features with houses outside a radius d=8mi from the city center removed. </li>
+					<li><b>Piecewise Lin. Reg:</b> Piecewise Linear Regression over all model features using the model described <a href="#model">above</a>. </li>
+				</ul>
 			</div>
 		</div>
 	</div>
@@ -986,7 +1004,7 @@
 				<div class="page-header">
 					<p> &nbsp;</p>
 					<p> &nbsp;</p>
-					<h2>Model Coefficients</h2>
+					<h2>Piecewise Linear Regression Coefficients</h2>
 				</div>
 				<table class="table">
 					<thead>
