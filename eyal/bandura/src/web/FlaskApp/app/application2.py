@@ -1,4 +1,5 @@
 
+import os
 import sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
@@ -30,7 +31,7 @@ from MX_common import p
 
 # global variables 
 g_p = dict()
-g_p['play_interval'] = ['3','4']
+g_p['play_interval'] = ['3','9']
 g_7digital_cur = ''
 g_7digital_nexts = []
 #g_search_term = ''
@@ -57,6 +58,7 @@ app.config.from_object('config')
 
 @app.route("/")
 def hello():
+    print os.getcwd()
     return redirect("/bandura")
 
 
@@ -84,8 +86,29 @@ def bandura_search():
     global g_nexts_features
 
     print "bandura_search"
+    print os.getcwd()
+
     if request.method == "POST":
-        print "POSTT"
+        print "'bandura search' called by POSTT"
+
+        context = {'cons_tempo'    : p['conservation']['tempo'],\
+                           'cons_loudness'    : p['conservation']['loudness'],\
+                           'cons_year'    : p['conservation']['year'],\
+                           'cons_artist_familiarity'    : p['conservation']['artist_familiarity'],\
+                           'cons_valence'    : p['conservation']['valence'],\
+                           'cons_energy'    : p['conservation']['energy'],\
+                           'cons_danceability'    : p['conservation']['danceability'],\
+                           'cons_acousticness'    : p['conservation']['acousticness'],\
+                           'cons_liveness'    : p['conservation']['liveness'],\
+                           'cons_speechiness'    : p['conservation']['speechiness'],\
+                           'cons_instrumentalness'    : p['conservation']['instrumentalness'],\
+                           'noisyness'    : p['noisyness'],\
+                           'history_future'   : [ ss[1] for ss in p['suggestions'] ], \
+                           'history_cur'      : p['currently_playing'][1], \
+                           'history_past'     : [ ss[1] for ss in p['recently_played'] ], \
+                           'debug_neighbors'     : p['debug_neighbors'] }
+
+
         search_term = request.form["search_term"]
         if search_term != '':
             g_7digital_cur = ''
@@ -109,6 +132,8 @@ def bandura_search():
                     g_7digital_cur = best_match[0]
             #print type(g_7digital_cur), len(g_7digital_cur), g_7digital_cur==''
             print "best match: " + g_7digital_cur
+
+
             if g_7digital_cur != '':
                 print "gotcha!"
                 g_7digital_nexts      = MX_traverse.pickNextSongsWrapped( g_7digital_cur );
@@ -118,35 +143,21 @@ def bandura_search():
 #                if g_p['save_playlist']:
 #                    g_p['playlist_file'] = g_p['playlist_pref'] + time.strftime("%Y%m%d-%H%M%S") + '.csv'
 #                    MX_traverse.addSongToPlaylist( g_p['playlist_file'], g_song_features, song_url )
-                context = {'cons_tempo'    : p['conservation']['tempo'],\
-                           'cons_loudness'    : p['conservation']['loudness'],\
-                           'cons_year'    : p['conservation']['year'],\
-                           'cons_artist_familiarity'    : p['conservation']['artist_familiarity'],\
-                           'cons_valence'    : p['conservation']['valence'],\
-                           'cons_energy'    : p['conservation']['energy'],\
-                           'cons_danceability'    : p['conservation']['danceability'],\
-                           'cons_acousticness'    : p['conservation']['acousticness'],\
-                           'cons_liveness'    : p['conservation']['liveness'],\
-                           'cons_speechiness'    : p['conservation']['speechiness'],\
-                           'cons_instrumentalness'    : p['conservation']['instrumentalness'],\
-                           'noisyness'    : p['noisyness'],\
-                           'song_url'       : song_url+'#t='+g_p['play_interval'][0]+","+g_p['play_interval'][1],\
-                           'id_7digital'    : g_7digital_cur,\
-                           'title'          : g_song_features[p['invkey']['title']],\
-                           'artist'         : g_song_features[p['invkey']['artist_name']],\
-                           'history_future'   : [ ss[1] for ss in p['suggestions'] ], \
-                           'history_cur'      : p['currently_playing'][1], \
-                           'history_past'     : [ ss[1] for ss in p['recently_played'] ] }
-#                           'history' : string.join([ss[1] for ss in p['recently_played']], "<br>") }
+                context['song_url']    = song_url+'#t='+g_p['play_interval'][0]+","+g_p['play_interval'][1]
+                context['id_7digital'] = g_7digital_cur
+                context['title']       = g_song_features[p['invkey']['title']]
+                context['artist']      = g_song_features[p['invkey']['artist_name']]
                 for i in range(len(g_nexts_features)):
                     context['n'+str(i)+'_id_7digital'] = g_nexts_features[i][p['invkey']['track_7digitalid']]
                     context['n'+str(i)+'_title']       = g_nexts_features[i][p['invkey']['title']]
                     context['n'+str(i)+'_artist']      = g_nexts_features[i][p['invkey']['artist_name']]
                 return render_template("bandura.html", **context);
             else:
-                return render_template("bandura.html");
+                print "Search yielded no results"
+                return render_template("bandura.html", **context);
         else:
-            return render_template("bandura.html");
+            print "No search term - stopped"
+            return render_template("bandura.html", **context);
 
 # SOBOAQC12A8C13E3E9
 @app.route("/bandura", methods=["GET","POST"])
@@ -161,6 +172,7 @@ def bandura():
 #    global g_search_term
 
     print "bandura"
+    print os.getcwd()
 #    z = request.form["suggestions"]
 
     #print str(request.values)
@@ -182,7 +194,7 @@ def bandura():
         p['conservation']['instrumentalness'] = float(request.form["cons_instrumentalness"])
         p['noisyness'] = float(request.form["noisyness"])
 
-        #print "cons year: " + str(p['conservation']['year'])
+        print "cons year: " + str(p['conservation']['year'])
         #p['conservation']['year'] = 30
         if g_next_choice >= 0:
             print "cur song id exists"
@@ -221,7 +233,9 @@ def bandura():
                         'artist'        : g_song_features[p['invkey']['artist_name']],\
                         'history_future'   : [ ss[1] for ss in p['suggestions'] ], \
                         'history_cur'      : p['currently_playing'][1], \
-                        'history_past'     : [ ss[1] for ss in p['recently_played'] ] }
+                        'history_past'     : [ ss[1] for ss in p['recently_played'] ], \
+                        'debug_neighbors'     : p['debug_neighbors'] }
+
 #                        'history' : string.join([ss[1] for ss in p['recently_played']], "<br>") }
             for i in range(len(g_nexts_features)):
                 context['n'+str(i)+'_id_7digital'] = g_nexts_features[i][p['invkey']['track_7digitalid']]
@@ -232,7 +246,7 @@ def bandura():
             print "cur song id does NOT exists"
             return render_template("bandura.html");
     else:
-        print "GET"
+        print "'bandura' called by GET"
         return render_template("bandura.html")
 
 

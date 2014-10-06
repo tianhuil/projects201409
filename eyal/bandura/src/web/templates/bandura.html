@@ -1,33 +1,12 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-    <meta name="description" content="Your description goes here">
-    <meta name="keywords" content="your,keywords,goes,here">
-    <meta name="author" content="Your Name">
-    <meta name="generator" content="WYSIWYG Web Builder 9 Trial Version - http://www.wysiwygwebbuilder.com">
-
-    <title>Bandura</title>
-    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
-    <script type="text/javascript">
-    $(document).ready(function(){
-        //alert("dgfdgdfg")
-        var audio1 = document.getElementById('player');
-        audio1.volume=0.7
-        audio1.addEventListener('pause',function(){
-            //alert("inside")
-        $("#play_next").click();
-        });
-        //var audio2 = document.getElementById('player');
-        audio1.addEventListener('error',function(){
-            //alert("inside")
-        $("#play_next").click();
-        });
-    });
-    </script>
-
-
-
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Basic Contact</title>
+<meta name="description" content="Your description goes here">
+<meta name="keywords" content="your,keywords,goes,here">
+<meta name="author" content="Your Name">
+<meta name="generator" content="WYSIWYG Web Builder 9 Trial Version - http://www.wysiwygwebbuilder.com">
 <style type="text/css">
 div#container
 {
@@ -39,7 +18,7 @@ div#container
 body
 {
    background-color: #1A1A1A;
-   background-image: "{{url_for('static', filename='css/images/goodwp.com_17248_dark.jpg')}}";
+   background-image: url(images/goodwp.com_17248_dark.jpg);
    background-repeat: no-repeat;
    background-position: center top;
    color: #DDDDDD;
@@ -52,8 +31,8 @@ body
 <style type="text/css">
 a
 {
-   color: #FF77FF;
-   text-decoration: none;
+   color: #0000FF;
+   text-decoration: underline;
 }
 a:visited
 {
@@ -80,7 +59,6 @@ a:hover
 #wb_Text1 div
 {
    text-align: center;
-   color: #FF00FF;   
 }
 #wb_Text2 
 {
@@ -141,7 +119,7 @@ a:hover
 #wb_Form1
 {
    background-color: transparent;
-   background-image: {{ url_for('static', filename = 'css/images/index_Form1_bkgrnd.png') }}
+   background-image: url(images/index_Form1_bkgrnd.png);
    background-repeat: repeat-x;
    background-position: left top;
    border: 0px #800000 none;
@@ -207,51 +185,32 @@ a:hover
    white-space: nowrap;
 }
 </style>
-
-
-<!--
-   background-image: url("goodwp.com_17248_dark.jpg");
-   background-image: "{{ url_for('static', filename = 'css/images/goodwp.com_17248_dark.jpg') }}";
-
-       url("goodwp.com_17248_dark.jpg");
-
-   background-image: url(http://i.imgur.com/MQHYB.jpg);
-
-
--->
-
 </head>
 
 <body>
-
-
-
-<div id="container" style="position:absolute;left:0px">
-    <div id="moshe">
-        <img src="{{ url_for('static', filename = 'css/images/goodwp.com_17248_dark.jpg') }}" width="1300" height="800" alt="previous" title="Previous" border="0">
-    </div>
-
-
+<div id="container">
    <div id="wb_Text1" style="position:absolute;left:37px;top:23px;width:202px;height:56px;text-align:center;z-index:0;">
       <span style="color:#DDDDDD;font-family:Georgia;font-size:48px;">
-         <b>Bandura</b>
+         Bandura
       </span>
    </div>
    <div id="wb_Text2" style="position:absolute;left:13px;top:85px;width:257px;height:36px;text-align:center;z-index:1;">
       <div style="line-height:24px;">
          <span style="color:#DDDDDD;font-family:Georgia;font-size:20px;">
-            Don't just listen - <b>Explore</b>!
+            Don't just listen - Explore!
          </span>
       </div>
    </div>
    <div id="wb_MediaPlayer1" style="position:absolute;left:400px;top:87px;width:351px;height:60px;z-index:4;">
       <audio src={{song_url}} id="player" style="width:550px; margin: 0; display:block;" autoplay preload="auto" type="audio/mp3" controls volume="0.1">
       </audio>
+      <!--<audio src="" id="MediaPlayer1" autoplay="autoplay" controls="controls">
+      </audio>-->
    </div>
 
-   <div id="wb_Text3" style="position:absolute;left:10px;top:130px;width:257px;height:27px;text-align:center;z-index:7;">
+   <div id="wb_Text3" style="position:absolute;left:504px;top:20px;width:257px;height:27px;text-align:center;z-index:7;">
       <div style="line-height:18px;">
-         <span style="color:#FFBBAA;font-family:Georgia;font-size:16px;">
+         <span style="color:#DDDDDD;font-family:Georgia;font-size:16px;">
             <a href="./index.html">
                project description
             </a>
@@ -292,30 +251,15 @@ a:hover
       </div>
    </form>
 
-   <form action="/bandura_lucky" method="POST">
-      <div id="wb_Text6" style="position:absolute;left:435px;top:287px;width:700px;height:27px;z-index:11;text-align:left;">
-         <div style="line-height:18px;">
-            <span style="color:#DDDDDD;font-family:Georgia;font-size:16px;">
-               <input type="submit" id="search"      name="search" value="Feelin' lucky">
-            </span>
-         </div>
-      </div>
-   </form>
-
-
 
 
    <form action="/bandura" method="POST" name="controls" id="controls">
 
-        <div id="moshe2" style="position:absolute;left:50px;top:173px;width:900px;height:100px;">
-            <img src="{{ url_for('static', filename = 'css/images/Picture1.png') }}" width="900" height="100" border="0">
-        </div>
-
-      <div id="wb_Form1" style="position:absolute;left:50px;top:173px;width:900px;height:100px;z-index:8;">
+      <div id="wb_Form1" style="position:absolute;left:50px;top:173px;width:900px;height:525px;z-index:8;">
          <br>
          &nbsp;&nbsp <b>Diffusion</b> &nbsp;&nbsp;&nbsp;&nbsp Tempo &nbsp;&nbsp Loudness &nbsp;&nbsp Year &nbsp;&nbsp Familiarity &nbsp;&nbsp Valence &nbsp;&nbsp Energy &nbsp;&nbsp Danceability &nbsp;&nbsp Acousticness &nbsp;&nbsp Liveness &nbsp;&nbsp Speechiness &nbsp;&nbsp Instrumentalness<br>
          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-         <input type="range" id="diffusion" name="noisyness" min="-4" max="0" step="0.1" value={{noisyness}} orient="vertical"
+         <input type="range" id="diffusion" name="noisyness" min="-3" max="0" step="0.1" value={{noisyness}} orient="vertical"
          style="width: 20px; height: 60px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">
          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
          <input type="range" id="cons_tempo" name="cons_tempo" min="0" max="1" step="0.01" value={{cons_tempo}} orient="vertical"
@@ -355,15 +299,16 @@ a:hover
       </div>
 
 
-      <div id="wb_Text8" style="position:absolute;left:50px;top:377px;width:170px;height:100px;z-index:2;text-align:left;">
+      <div id="wb_Text8" style="position:absolute;left:50px;top:377px;width:170px;height:27px;z-index:2;text-align:left;">
          <div style="line-height:18px;">
             <span style="color:#DDDDDD;font-family:Georgia;font-size:16px;">
               <u>Next track suggestions</u>: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp
+              <br>
               <input type="submit" id="play_next"       name="play_next" value="skip to the next">
             </span>
          </div>
-      </div>      
-      <div id="wb_Text9" style="position:absolute;left:250px;top:400px;width:700px;height:27px;z-index:13;text-align:left;">
+      </div>
+      <div id="wb_Text9" style="position:absolute;left:250px;top:377px;width:700px;height:27px;z-index:13;text-align:left;">
          <div style="line-height:18px;">
             <span style="color:#DDDDDD;font-family:Georgia;font-size:16px;">
               {% if n0_id_7digital %}<input type="radio" name="suggestions" id="suggestions" value=0 checked>{{n0_id_7digital}}, {{n0_title}}, {{n0_artist}}{% endif %}<br>
@@ -377,22 +322,12 @@ a:hover
    </form>
 
 
-
-    
-
-   <div name="TextArea1" id="TextArea1" style="position:absolute;left:50px;top:500px;width:1600px;height:200px;z-index:5; font:12px/12px Courier; overflow:auto;" rows="8" cols="130">
-    <u>tracks history</u>:<br>
-    <b>{{ history_cur }}</b><br>
-    {% for songo in history_past %}
-    {{ songo }}<br>
-    {% endfor %}
-   </div>
-   <div name="TextArea2" id="TextArea2" style="position:absolute;left:50px;top:850px;width:1600px;height:250px;z-index:5; font:12px/12px Courier; overflow:auto;" rows="8" cols="130">
-    <u>current track neighborhood</u>:<br>
-    {% for songo in debug_neighbors %}
-    {{ songo }}<br>
-    {% endfor %}
-   </div>
+   <textarea name="TextArea1" id="TextArea1" style="position:absolute;left:87px;top:470px;width:654px;height:159px;z-index:5;" rows="8" cols="103">
+      tracks history
+   </textarea>
+   <textarea name="TextArea1" id="TextArea2" style="position:absolute;left:87px;top:653px;width:654px;height:159px;z-index:6;" rows="8" cols="103">
+      current track neighborhood
+   </textarea>
 
 </div>
 

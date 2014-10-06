@@ -17,7 +17,8 @@ from functools import wraps
 
 g_base_dir = '/Users/eyalshiv/DI/musixplore'
 
-g_db_conn_command = "dbname='my_db_test' user='eyalshiv' host='localhost' password='' port=8787"
+g_db_conn_command = "dbname='my_db_test'  port=5432"
+#g_db_conn_command = "dbname='my_db_test' user='eyalshiv' host='localhost' passw$
 
 
 # DB globals
@@ -385,22 +386,24 @@ def init_globals_run(  ):
     p['conservation'] = dict()
     for key in p['colnames']:
         p['conservation'][key] = 0
-
-    p['currently_playing']     = ('XX', 'XX')
+    p['conservation']['valence'] = 0.8
+    
+    p['currently_playing']     = ('', '')
 
     p['suggestions']         = collections.deque([])
     p['suggestions'].append( ('YY', 'YY') )
     p['recently_played']     = collections.deque([])
 
-
+    p['avoid_recent']     = collections.deque([])
+    p['debug_neighbors'] = []
 
     # parameter inits    
 
-    p['recently_played_num'] = 50
+    p['recently_played_num'] = 300
     p['recent_to_avoid_num'] = 10
     p['suggestions_num']     = 4     
     
-    p['noisyness'] = 1
+    p['noisyness'] = -3
     p['max_jump_recommendations'] = 4
 
     p['num_forward_song_predictions'] = 1
