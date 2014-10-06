@@ -49,6 +49,19 @@ app.post('/get_station_origins', function(request,response) {
 	response.send(JSON.stringify(ret));
 });
 
+app.post('/get_projections', function(request,response) {
+	var ret = {existing: {}, proposed: []};
+	for (key in projections) {
+		if (key < 10000) {
+			ret.existing["station"+key] = projections[key]['gain'] + data[key]['COUNT'];
+		}
+		else {
+			ret.proposed.push(projections[key]['proj']);
+		}
+	}
+	response.send(JSON.stringify(ret));
+});
+
 app.post('/station_data', function(request,response) {
 	var ret = {};
 	for (key in data) {
@@ -82,6 +95,7 @@ app.post('/census_data',function(request,response) {
 var data = {};
 var proposed = [];
 var census = {};
+var projections = {};
 // Initialize variables
 function Init() {
 	parse(fs.readFileSync("station_data.csv","utf8"), function(err, output) {
@@ -118,6 +132,16 @@ function Init() {
 				new_obj[output[0][j]] = output[i][j];
 			}
 			census[new_obj['block_tract']] = new_obj;
+		}
+	});
+	parse(fs.readFileSync("projections.csv","utf8"), function(err,output) {
+		var ids = output[0];
+		for (var i=1; i<output.length; i++) {
+			var new_obj = {};
+			for (var j=1; j<output.length+2; j++) {
+				new_obj[ids[j]] = parseFloat(output[i][j]);
+			}
+			projections[ids[i]] = new_obj;
 		}
 	});
 }
