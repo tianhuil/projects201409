@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style type="text/css">
+      html, body {height:100%; width:100%;}
+      #map-canvas {height:100%; width:100%; margin: 0; padding: 0;}
+    </style>
+    <script type="text/javascript"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBPlDHCZ_N7QRyIIGyMWQhD0LOFhpF7CRs">
+    </script>
+    <script type="text/javascript">
+	***
+	  var map; // The Google Maps object
+	  var markers = {}; // Markers for the bike stations.
+	  var p_markers = []; // Markers for proposed stations
+	  var infowindow = null; //
+	  var census_shapes = {}; // A list of polygonal shapes corresponding to census blocks
+	  var lines = []; // These lines correspond to trip distances or other such things
+	  var StationData = {}; // Data associated with the station
+	  var mode = "GetInfo"; // Indicates the mode for interacting with the map
+      function initialize() {
+        var mapOptions = {
+          center: { lat: 40.712, lng: -73.99},
+          zoom: 13
+        };
+        map = new google.maps.Map(document.getElementById('map-canvas'),mapOptions);
+		callback = null;
+		if (init_code == 'brooklyn_hub') {callback = function() {ShowDestinations(323);Resize('dist');}}
+		if (init_code == 'weekend_pop') {callback = function() {Census('pop');Resize('weekend');}}
+		if (init_code == 'use_time') {callback = function() {Resize('usage');Resize('time');}}
+		LoadStations(callback);
+		ChangeMode("GetInfo");
+      }
+	  function XMLHTTP(url, req_json, callback) {
+		  xmlhttp = new XMLHttpRequest();
+		  xmlhttp.open('POST',url,true);
+		  xmlhttp.onload = callback;
+		  xmlhttp.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+		  var reqString = JSON.stringify(req_json);
+		  xmlhttp.send(reqString);
+	  }
+	  function ClearLines() { // This utility function clear all lines from the map and clears the lines object
+		  for (var i=0; i<lines.length; i++) {
+			  lines[i].setMap(null);
+			  lines[i] = null;
+		  }
+		  lines = [];
+	  }
+	  function StationClick(station) {
+		  if (mode == "ShowDests") {ShowDestinations(station)}
+		  else if (mode == "ShowOrigins") {ShowOrigins(station)}
+		  else if (mode == "GetInfo") {GetInfo(station)}
+	  }
+	  function ShowOrigins(station) {
+		  line_key.innerHTML = "Line thickness measures from where people come to Station " +station + ".";
+		  size_key.innerHTML = "Size measures from where people come to Station " +station + ".";
+		  XMLHTTP('/get_station_origins',{'station':station}, function() {
+		  	  resp = JSON.parse(this.response);
+			  ClearLines();
+			  for (key in resp) {
+				  if (parseInt(key) && resp['COUNT'] > 0) {
+					  var prop = resp[key]/resp['COUNT'];
+					  markers['station'+key].setRadius(1500*Math.sqrt(resp[key]/resp['COUNT']));
+                      var newline = new google.maps.Polyline({
+						  path: [StationData['station'+station], StationData['station'+key]],
+						  strokeColor: '#004444',
+						  strokeOpacity: 1.0,
+						  strokeWeight: 100*prop
+					  });
+					  newline.setMap(map);
+					  lines.push(newline);
+				  }
+			  }
+		  });
+	  }
+	  function ShowDestinations(station) {
+		  document.getElementById('line_key').innerHTML = "Line thickness measures where people go from Station " +station + ".";
+		  document.getElementById('size_key').innerHTML = "Size measures where people go from Station " +station + ".";
+		  XMLHTTP('/get_station_dests',{'station':station}, function() {
+		  	  resp = JSON.parse(this.response);
+			  ClearLines();
+			  for (key in resp) {
+				  if (parseInt(key) && resp['COUNT'] > 0) {
+					  var prop = resp[key]/resp['COUNT'];
+					  markers['station'+key].setRadius(1500*Math.sqrt(resp[key]/resp['COUNT']));
+                      var newline = new google.maps.Polyline({
+						  path: [StationData['station'+station], StationData['station'+key]],
+						  strokeColor: '#444400',
+						  strokeOpacity: 1.0,
+						  strokeWeight: 100*prop
+					  });
+					  newline.setMap(map);
+					  lines.push(newline);
+				  }
+			  }
+		  });
+	  }
+	  function GetInfo(station) {
+		  XMLHTTP('/get_data',{'station':station}, function() {
+			  if (infowindow) {infowindow.close()}
+			  infowindow = new google.maps.InfoWindow({content: this.response});
+			  var pos = StationData["station"+station];
+			  infowindow.setPosition({lat:pos.lat, lng:pos.lng});
+		      infowindow.open(map);
+		  });
+	  }
+	  function LoadStations(callback) { // Load all stations.  Should only be called at initialization
+	  	  XMLHTTP('/load_stations',{}, function () {
+			  var parsed = JSON.parse(this.response);
+	  	  	  for (key in parsed) {
+				  if (parsed[key].stat == "existing") {
+					  markers[key] = new google.maps.Circle({strokeColor: '#FF0000',strokeOpacity: 0.8,strokeWeight: 1, fillColor: '#FF0000',fillOpacity: 0.35,map: map,center: {lat:parsed[key].lat,lng:parsed[key].lon},radius:100,title:key});
+				  	  google.maps.event.addListener(markers[key], 'mouseup', 
+				          function(stat_id){return function() {StationClick(stat_id)};}(parsed[key].num)   );
+				      StationData[key] = {lat:parsed[key].lat,lng:parsed[key].lon};
+				  }
+				  else {
+				  	  p_markers.push(new google.maps.Circle({strokeColor: '#00FF00',strokeOpacity: 0.8,strokeWeight: 1, fillColor: '#00AA33',fillOpacity: 0.35,map: map,center: {lat:parsed[key].lat,lng:parsed[key].lon},radius:100,title:key}));
+				  }
+	  	  	  }
+			  if (callback) {callback();}
+	  	  });
+	  }
+	  function SizeStations(params, f, type, message) {
+		  XMLHTTP('/station_data',params, function () {
+		  	var parsed = JSON.parse(this.response);
+  	  	  	for (key in parsed) {
+				if (type == 'size') {
+					row = parsed[key];
+					for (var i=0; i<row.length; i++) {row[i] = parseFloat(row[i])}
+					markers[key].setRadius(f(row));
+					size_key.innerHTML = message;
+				}
+				if (type == 'opacity') {
+					row = parsed[key];
+					for (var i=0; i<row.length; i++) {row[i] = parseFloat(row[i]); if (row[i]<0) {row[i]=0;}}
+					markers[key].setOptions({fillOpacity: f(row)});
+					opacity_key.innerHTML = message;
+				}
+  	  	  	}
+		  });
+	  }
+	  function Resize(code) {
+		  if (code.length == 1) {SizeStations(['Hour'+code[0]],function(row) {return 4*Math.sqrt(row[0])}, 'size', 'Area is ridership from '+code[0]+':00:00 to '+code[0] +':59:59.')}
+		  if (code == 'night') {SizeStations(['Hour20','Hour21','Hour22','Hour23','Hour00','Hour01','Hour02','Hour03','Hour04','Hour05'],function(row) {return 2*Math.sqrt(row[0]+row[1]+row[2]+row[3]+row[4]+row[5]+row[6]+row[7]+row[8]+row[9])}, 'size', 'Area is ridership from 8:00 PM to 5:59 AM.')}
+		  if (code == 'morning') {SizeStations(['Hour06','Hour07','Hour08','Hour09'],function(row) {return 2*Math.sqrt(row[0]+row[1]+row[2]+row[3])}, 'size', 'Area is ridership from 6:00 AM to 9:59 AM.')}
+		  if (code == 'midday') {SizeStations(['Hour10','Hour11','Hour12','Hour13','Hour14','Hour15'],function(row) {return 1.5*Math.sqrt(row[0]+row[1]+row[2]+row[3]+row[4]+row[5])}, 'size', 'Area is ridership from 10:00 AM to 3:59 PM.')}
+		  if (code == 'evening') {SizeStations(['Hour16','Hour17','Hour18','Hour19'],function(row) {return 1.5*Math.sqrt(row[0]+row[1]+row[2]+row[3])}, 'size', 'Area is ridership from 4:00 PM to 7:59 PM.')}
+		  if (code == 'usage') {SizeStations(['COUNT'], function(row) {return 0.75*Math.sqrt(row[0])}, 'size','Area is the total number of users of the station.')}
+		  if (code == 'sparsity') {SizeStations(['Sparsity'], function(row) {return 2*row[0]},'opacity','Opacity is average distance of a station to its five nearest neighbors.  Transparent is 0, opaque is 500+ m.')}
+		  if (code == 'constant') {SizeStations([], function(row) {return 100}, 'size','All stations are the same size.')}
+		  if (code == 'female') {SizeStations(['Female','Male'], function(row) {var o =  4*row[0]/(row[0]+row[1])-0.5; if (o<0) {return 0;} else {return o}}, 'opacity','Opacity is female ridership.  Transparent is 12.5-%, opaque is 37.5+%')}
+		  if (code == 'weekend') {SizeStations(['Saturday','Sunday','COUNT'], function(row) {return 1.7*(row[0]+row[1])/row[2]}, 'opacity','Opacity is portion of ridership on weekends. Transparent is 0, opaque is 59+%')}
+		  if (code == 'round') {SizeStations(['Round','NotRound'], function(row) {return 10*row[0]/(row[0]+row[1])},'opacity','Opacity measures trips that start and end at the same station.  Transparent is 0, opaque is 10+%.')}
+		  if (code == 'dist') {SizeStations(['avg_dist'], function(row) {return (row[0]-1.25)/(4-1.25)},'opacity','Opacity is average distance traveled from station.  Transparent is 1.25- km, opaque is 4+ km.')}
+		  if (code == 'time') {SizeStations(['AverageTripTime','COUNT'], function(row) {
+			  var ret = (row[0]/row[1]-600)/900;
+			  if (ret < 0) {return 0}
+			  return ret;
+		  },'opacity','Opacity is averge trip time from station. Transparent is 10- minutes, opaque is 25+ minutes.')}
+	  }
+	  
+	  var parsed = "";
+	  all_points = [];
+	  function GetAndDrawCensusBlocks(fields,color,formula) {
+	  	  XMLHTTP('/census_data',{fields:JSON.stringify(fields)}, function () {
+			  parsed = JSON.parse(this.response);
+			  for (key in parsed) {
+				  if (!census_shapes[key]) {
+					  var paths = [];
+					  points = JSON.parse(parsed[key].shape);
+					  all_points.push(points);
+					  for (var i=0; i<points.length; i++) {
+						  paths.push(new google.maps.LatLng(points[i][1],points[i][0]));
+					  }
+					  var opacity = formula(parsed[key]);
+					  census_shapes[key] = new google.maps.Polygon({
+				      	  paths: paths,
+						  strokeColor: color,
+						  strokeOpacity: 0.6,
+						  strokeWeight: 0,
+						  fillColor: color,
+						  fillOpacity: opacity
+				      });
+					  census_shapes[key].setMap(map);
+				  }
+				  else {
+				  	var opacity = formula(parsed[key]);
+					census_shapes[key].setOptions({fillColor:color, strokeColor:color, fillOpacity: opacity});
+					census_shapes[key].setMap(map);
+				  }
+			  }
+	  	  });
+	  }
+	  function Census(code) {
+		  if (code == 'none') {
+			  census_key.innerHTML = "Demographic data not shown"
+		  	  for (key in census_shapes) {census_shapes[key].setMap(null);}
+		  }
+		  if (code == 'pop') {
+			  census_key.innerHTML = "Density: transparent is 0, opaque blue is 100,000+ people per square km"
+		      GetAndDrawCensusBlocks(['Population','Area'],'#0000FF', 
+			      function(row) {return 10*parseInt(row.Population) / parseInt(row.Area)});
+	      }
+		  if (code == 'black') {
+			  census_key.innerHTML = "African Americans: transparent is 0, opaque blue 100%"
+    		  GetAndDrawCensusBlocks(['AllRaces','Black'],'#0000FF',function(row) {return JSON.parse(row.Black / parseInt(row.AllRaces))})
+		  }
+		  if (code == 'nonfam') {
+			  census_key.innerHTML = "Nonfamily households: transparent is 0, opaque blue is 100%"
+		  	  GetAndDrawCensusBlocks(['Households','NonfamilyHouseholds'],'#0000FF',function(row) {return parseInt(row.NonfamilyHouseholds) / parseInt(row.Households)})
+		  }
+		  if (code == 'nonrel') {
+			  census_key.innerHTML = "People living with nonrelatives: transparent is 0, opaque blue is 100%"
+		  	  GetAndDrawCensusBlocks(['RelNonrel','Nonrelatives'],'#0000FF',function(row) {return parseInt(row.Nonrelatives) / parseInt(row.RelNonrel)})
+		  }
+		  if (code == 'multiracial') {
+			  census_key.innerHTML = "Multiracial households: transparent is 0, opaque blue is 12.5+%"
+		  	  GetAndDrawCensusBlocks(['AllRaceCounts','MixedRace'],'#0000FF',function(row) {return 8*parseInt(row.MixedRace) / parseInt(row.AllRaceCounts)})
+		  }
+		  if (code == 'rental') {
+			  census_key.innerHTML = "Rentals: transparent is 0, opaque blue is 50+%"
+		  	  GetAndDrawCensusBlocks(['OccupiedHousing','RentedHouseholds'],'#0000FF',function(row) {return 2*parseInt(row.RentedHouseholds) / parseInt(row.OccupiedHousing) - 1.2})
+		  }
+	  }
+	  function ChangeMode(m) {mode = m;}
+      google.maps.event.addDomListener(window, 'load', initialize);
+    </script>
+  </head>
+  
+  <body>
+	  <!--<button type="button" class="btn btn-default"><a href="javascript:SizeStationsByCount()">Size Stations By Usage</a></button>-->
+	<div style="width:70%; height: 100%; float:left">
+		<div style = "float:left" id="map-canvas"></div>
+		<div id="slider" style="width: 100%; height: 20%">
+		</div>
+	</div>
+	
+	<div style="width:30%; float:left">
+		<div id="menus" style="width: 100%">
+			<div style="width:50%; float:left">
+				<b>Draw Census Overlay</b><br>
+				<select name = "menu_census" onChange="Census(this.options[this.selectedIndex].value);">
+				  <option value="none">No Census Overlay</option>
+				  <option value="pop">Population Density</option>
+				  <option value="black">Black Population</option>
+				  <option value="nonfam">Nonfamily Households</option>
+				  <option value="nonrel">Household with Nonrelatives</option>
+				  <option value="multiracial">Multiracial Households</option>
+				  <option value="rental">Proportion of Rental Households</option>
+				</select>
+				<div id = "census_key">Census block groups: </div>
+				<br><br>
+				<b>Size Stations By Properties</b><br>  
+				<select name = "menu_census" onChange="Resize(this.options[this.selectedIndex].value);">
+				  <option value="constant">Constant Size</option>
+				  <option value="usage">Average Daily Usage</option>
+				  <option value="morning">Morning Usage</option>
+				  <option value="midday">Midday Usage</option>
+				  <option value="evening">Evening Usage</option>
+				  <option value="night">Night Usage</option>
+				</select>
+				<div id = "size_key">Size: </div>
+				<br><br>
+				<b>Station Opacity By Properties</b><br>  
+				<select name = "menu_census" onChange="Resize(this.options[this.selectedIndex].value);">
+				  <option value="round">Percentage of Round Trips</option>
+				  <option value="female">Female Ridership</option>
+				  <option value="weekend">Weekend Usage</option>
+				  <option value="dist">Average Distance Traveled From Station</option>
+				  <option value="time">Average Time Traveled From Station</option>
+				  <option value="sparsity">Geographic Sparsity</option>
+				</select>
+				<div id = "opacity_key">Opacity: </div>
+				<br><br>
+				<b>Click Mode</b><br>
+				<select name = "menu_census" onChange="ChangeMode(this.options[this.selectedIndex].value);">
+				  <option value="GetInfo">Get Info</option>
+				  <option value="ShowDests">Show Destinations</option>
+				  <option value="ShowOrigins">Show Origins</option>
+				</select>
+				<div id = "line_key">Lines: </div>
+		    </div>
+		</div>
+	</div>
+  </body>
+</html>

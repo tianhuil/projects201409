@@ -1,0 +1,112 @@
+<!Doctype html>
+<html lang="en">
+<head>
+
+    <title>Bandura</title>
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function(){
+        //alert("dgfdgdfg")
+        var audio1 = document.getElementById('player');
+        audio1.volume=0.03
+        audio1.addEventListener('pause',function(){
+            //alert("inside")
+        $("#play_next").click();
+        });
+        //var audio2 = document.getElementById('player');
+        audio1.addEventListener('error',function(){
+            //alert("inside")
+        $("#play_next").click();
+        });
+    });
+    </script>
+
+	
+
+</head>
+<body role="document">
+
+
+
+    <div class="container">
+    <h1>Bandura - The Music Crawler</h1>
+    <h3>Don't just listen - Explore!</h3>
+    </div>
+
+    <form action="/bandura_search" method="POST">
+        <input type="submit" id="search"      name="search" value="Search">
+        <input type="text"   id="search_term" name="search_term" value={{search_term}}>
+    </form>
+    
+    <p>Currently playing: {{id_7digital}}, {{title}}, {{artist}} </p>
+    <audio src={{song_url}} id="player" style="width:550px; margin: 0; display:block;" autoplay preload="auto" type="audio/mp3" controls volume="0.1"></audio>
+    
+    <form action="/bandura" method="POST" name="controls" id="controls">
+        <p>Suggestions: </p>
+        
+        <input type="submit" id="play_next"       name="play_next" value="Play next"><br>
+
+        {% if n0_id_7digital %}<input type="radio" name="suggestions" id="suggestions" value=0 checked>{{n0_id_7digital}}, {{n0_title}}, {{n0_artist}}{% endif %}<br>
+        {% if n1_id_7digital %}<input type="radio" name="suggestions" id="suggestions" value=1>{{n1_id_7digital}}, {{n1_title}}, {{n1_artist}}{% endif %}<br>
+        {% if n2_id_7digital %}<input type="radio" name="suggestions" id="suggestions" value=2>{{n2_id_7digital}}, {{n2_title}}, {{n2_artist}}{% endif %}<br>
+        {% if n3_id_7digital %}<input type="radio" name="suggestions" id="suggestions" value=3>{{n3_id_7digital}}, {{n3_title}}, {{n3_artist}}{% endif %}<br>
+
+        <input type="range" id="diffusion" name="noisyness" min="-2" max="5" step="0.2" value={{noisyness}} orient="vertical"
+        style="width: 20px; height: 100px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">noisyness
+        
+        <input type="range" id="cons_tempo" name="cons_tempo" min="0" max="1" step="0.01" value={{cons_tempo}} orient="vertical"
+        style="width: 10px; height: 100px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">tempo
+        <input type="range" id="cons_loudness" name="cons_loudness" min="0" max="1" step="0.01" value={{cons_loudness}} orient="vertical"
+        style="width: 10px; height: 100px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">loudness
+        <input type="range" id="cons_year" name="cons_year" min="0" max="1" step="0.01" value={{cons_year}} orient="vertical"
+        style="width: 10px; height: 100px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">year
+        <input type="range" id="cons_artist_familiarity" name="cons_artist_familiarity" min="0" max="1" step="0.01" value={{cons_artist_familiarity}} orient="vertical"
+        style="width: 10px; height: 100px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">artist familiarity
+        <br>
+        <input type="range" id="cons_valence" name="cons_valence" min="0" max="1" step="0.01" value={{cons_valence}} orient="vertical"
+        style="width: 10px; height: 100px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">artist familiarity
+        <input type="range" id="cons_energy" name="cons_energy" min="0" max="1" step="0.01" value={{cons_energy}} orient="vertical"
+        style="width: 10px; height: 100px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">tempo
+        <input type="range" id="cons_danceability" name="cons_danceability" min="0" max="1" step="0.01" value={{cons_danceability}} orient="vertical"
+        style="width: 10px; height: 100px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">loudness
+        <input type="range" id="cons_acousticness" name="cons_acousticness" min="0" max="1" step="0.01" value={{cons_acousticness}} orient="vertical"
+        style="width: 10px; height: 100px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">year
+        <input type="range" id="cons_liveness" name="cons_liveness" min="0" max="1" step="0.01" value={{cons_liveness}} orient="vertical"
+        style="width: 10px; height: 100px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">artist familiarity
+        <input type="range" id="cons_speechiness" name="cons_speechiness" min="0" max="1" step="0.01" value={{cons_speechiness}} orient="vertical"
+        style="width: 10px; height: 100px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">artist familiarity
+        <input type="range" id="cons_instrumentalness" name="cons_instrumentalness" min="0" max="1" step="0.01" value={{cons_instrumentalness}} orient="vertical"
+        style="width: 10px; height: 100px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">artist familiarity
+
+    </form>
+
+
+
+
+</body>
+</html>
+
+<!--   
+
+
+
+song_url, id_7digital, title, artist
+
+ $.get("http://api.7digital.com/1.2/track/preview",
+    {
+            trackId: $(this).siblings(".trackId").val(), // get track id from hidden field next to link in dom
+            redirect: false, // we don't want to be redirected to the file
+            oauth_consumer_key: "YOUR_KEY_HERE"
+        })
+    .done(function(xml) {
+        var url = $(xml).find("url").text();
+         $("#player").attr("src", url); // set url of song on player
+         $("#player").get(0).load(); // load song on player
+         $("#player").get(0).play(); // start player
+     });
+
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript">
+
+
+-->

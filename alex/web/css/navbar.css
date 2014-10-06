@@ -1,0 +1,42 @@
+body {
+	padding-top: 100px;
+	padding-bottom: 20px;
+	background-color: #fff;
+}
+
+.navbar {
+	margin-bottom: 50px;
+}
+
+.jumbotron {
+	width: 100%;
+	height: 100%;
+	top: 1000px;
+	left: 0px;
+	color: white;
+	background-image: url(../fig/Chicago_sunrise_1.jpg);
+	background-position: 0% 25%;
+    background-size: cover;
+    background-repeat: no-repeat;
+	padding-top: 100px;
+	padding-bottom: 5px;
+}
+
+.backJumbotron {
+	width: 100%;
+	height: 100%;
+	top: 1000px;
+	left: 0px;
+	color: white;
+	background-image: url(../fig/Chicago_sunrise_1.jpg);
+	background-position: 0% 25%;
+    background-size: cover;
+    background-repeat: no-repeat;
+	padding-top: 50px;
+	padding-bottom: 15px;
+}
+
+.carousel {
+  height: 500px;
+  margin-bottom: 60px;
+}

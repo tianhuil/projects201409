@@ -1,0 +1,11 @@
+# fetch data for yelp project
+
+import requests
+import zipfile
+import StringIO
+import pandas as pd
+import numpy as np
+import os
+
+result = requests.get("https://yelp-dataset.s3.amazonaws.com/yelp_dataset_challenge_academic_dataset.tgz?Signature=rGFp73ay6a7Ez90Gu4JDGGDXPuk%3D&Expires=1410794712&AWSAccessKeyId=AKIAJ3CYHOIAD6T2PGKA")
+
