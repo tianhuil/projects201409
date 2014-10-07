@@ -1,10 +1,3 @@
-<?php
-//session_start();
-//if(!isset($_SESSION['sess_user_id'])) {
-//	header("location: login.html");
-//	exit();
-//}
-?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -55,8 +48,6 @@ if ($handle) {
         $data = explode(" ", $line);
         $size = count($data);
 	$size = min($size,10);
-	echo 'Before: ' . $data[0] . '<br>';
-	echo 'Zeroth: ' . $data[0] . '<br>';
 	$sql = "INSERT INTO knn VALUES ('$data[0]', '$data[1]', '$data[2]', '$data[3]', '$data[4]', '$data[5]', '$data[6]', '$data[7]', '$data[8]', '$data[9]', '$data[10]')";
 if (!mysqli_query($con, $sql)) {
         die('Error: ' . mysqli_error($con));
