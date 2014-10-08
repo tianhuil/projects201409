@@ -7,11 +7,11 @@ Created on Tue Sep 23 13:49:47 2014
 
 
 import re
-import collections
-#import random
-
+#import collections
 import numpy as np
 from scipy import stats
+from operator import itemgetter
+
 import psycopg2 as psy
 import oauth2 as oauth
 
@@ -299,7 +299,7 @@ def pickNextSongsWrapped( cur_song_id ):
     
     next_song_ids2 = list()    
     for i in range(p['num_forward_song_predictions']):
-        next_song_ids = pickNextSongs( g_cur, p, cur_song_id2, 1 )
+        next_song_ids = pickNextSongs( g_cur, p, cur_song_id2, 1, p['conservation'] )
         next_song_ids2.append([get_7digital_id( x ) for x in next_song_ids])
         cur_song_id2 = next_song_ids2[-1][0]
 #    if (cur_song_id[0]).isdigit():
@@ -317,19 +317,27 @@ def pickNextSongsWrapped( cur_song_id ):
     
     
     
-def printSongDescription( cur_song_f, verbose ):
+def printSongDescription( cur_song_f, verbose, dist=0 ):
+    
+    max_song_title = 2000
+    max_artist_name = 2000   
     
     global p
 
     if cur_song_f == None:
         desc = 'No Song!!'
     else:
-        desc = "%s: Tmp=%3d Lou=% 3d Fam=%0.2f Vln=%0.2f Eng=%0.2f Dnc=%0.2f Acs=%0.2f Liv=%0.2f Spc=%0.2f Ins=%0.2f Yr=%04d   %s   %s" %\
-            (cur_song_f[p['invkey']['song_id']], \
-             int(cur_song_f[p['invkey']['tempo']]), cur_song_f[p['invkey']['loudness']], cur_song_f[p['invkey']['artist_familiarity']], \
-             max(0,cur_song_f[p['invkey']['valence']]), max(0,cur_song_f[p['invkey']['energy']]), max(0,cur_song_f[p['invkey']['danceability']]), max(0,cur_song_f[p['invkey']['acousticness']]), max(0,cur_song_f[p['invkey']['liveness']]), max(0,cur_song_f[p['invkey']['speechiness']]), max(0,cur_song_f[p['invkey']['instrumentalness']]), \
-             cur_song_f[p['invkey']['year']], cur_song_f[p['invkey']['artist_name']], cur_song_f[p['invkey']['title']]) 
-    
+        if verbose==1:
+            desc = "%s: Tmp=%3d Lou=% 3d Fam=%0.2f Vln=%0.2f Eng=%0.2f Dnc=%0.2f Acs=%0.2f Liv=%0.2f Spc=%0.2f Ins=%0.2f Yr=%04d   %s   %s" %\
+                (cur_song_f[p['invkey']['song_id']], \
+                 int(cur_song_f[p['invkey']['tempo']]), cur_song_f[p['invkey']['loudness']], cur_song_f[p['invkey']['artist_familiarity']], \
+                 max(0,cur_song_f[p['invkey']['valence']]), max(0,cur_song_f[p['invkey']['energy']]), max(0,cur_song_f[p['invkey']['danceability']]), max(0,cur_song_f[p['invkey']['acousticness']]), max(0,cur_song_f[p['invkey']['liveness']]), max(0,cur_song_f[p['invkey']['speechiness']]), max(0,cur_song_f[p['invkey']['instrumentalness']]), \
+                 cur_song_f[p['invkey']['year']], cur_song_f[p['invkey']['artist_name']][:min(max_artist_name,len(cur_song_f[p['invkey']['artist_name']]))], cur_song_f[p['invkey']['title']][:min(max_song_title,len(cur_song_f[p['invkey']['title']]))]) 
+        else:#if verbose==0:
+            desc = "%s: %s %s" %\
+                (cur_song_f[p['invkey']['song_id']], \
+                 cur_song_f[p['invkey']['artist_name']][:min(max_artist_name,len(cur_song_f[p['invkey']['artist_name']]))], cur_song_f[p['invkey']['title']][:min(max_song_title,len(cur_song_f[p['invkey']['title']]))]) 
+            
     return desc
     
     
@@ -354,13 +362,18 @@ def pickNextSongs( cur, p, cur_song_id, mag, conservation=None, debug_print=0 ):
     verbose = 1
     cur_song_desc = printSongDescription( cur_song_f[0], verbose )
     
-    # push current song into recently-played FIFO    
-    
+    # push current song into recently-played FIFOs: 
+    # history FIFO
     p['recently_played'].appendleft( p['currently_playing'] )
 #    p['recently_played'].appendleft(cur_song_id)
     if len(p['recently_played']) > p['recently_played_num']:
         p['recently_played'].pop()   
     p['currently_playing'] = (cur_song_id, cur_song_desc)
+
+    # avoid-replay FIFO
+    p['avoid_recent'].appendleft(cur_song_id)
+    if len(p['avoid_recent']) > p['recent_to_avoid_num']:
+        p['avoid_recent'].pop()   
 
        
     
@@ -371,7 +384,7 @@ def pickNextSongs( cur, p, cur_song_id, mag, conservation=None, debug_print=0 ):
     if conservation != None:
         t_cons_f     = np.array([conservation[key] for key in p['distance_features']])
     else:
-        t_cons_f     = np.array([1.0 for key in p['distance_features']])
+        t_cons_f     = np.array([0.0 for key in p['distance_features']])
         
 #    t_angle      = (1-t_cons_f) / np.linalg.norm(1-t_cons_f)
 #    
@@ -389,15 +402,17 @@ def pickNextSongs( cur, p, cur_song_id, mag, conservation=None, debug_print=0 ):
     cur.execute(q)   
     neighbor_songs = cur.fetchall()
 
-    print q
+    #print q
+    # filter out duplicates
+    neighbor_songs = list(set(neighbor_songs))
     print "#neighbors = " + str(len(neighbor_songs))
     # filter out recently-played songs
-    neighbor_songs = [x for x in neighbor_songs if (x[0] != p['currently_playing']) and (x[0] not in [z[0] for z in p['recently_played']]) ]
-
+    neighbor_songs = [x for x in neighbor_songs if x[0] not in p['avoid_recent'] ]
     print "#neighbors (- recent) = " + str(len(neighbor_songs))
 
     # for each neighbor, fetch features and calc weighted distance to current song
-    dists = list()
+    nb_disted = list()
+    p['debug_neighbors'] = list()
     print "#neighbors: " + str(len(neighbor_songs))
     for neighbor in neighbor_songs:
         #print neighbor
@@ -416,24 +431,59 @@ def pickNextSongs( cur, p, cur_song_id, mag, conservation=None, debug_print=0 ):
         sdist = MX_common.calcDistanceInner(t_neighbor_f, t_cur_f, t_scale, t_cons_f, 'L2')
  #       sdist = calcDistanceInner(t_neighbor_f, t_next_f, t_scale, p['distance_type_jump'])
 
-        dists.append(sdist[0])
+
+        # log neighbor's detailsfor debug purposes
+        nb_disted.append((sdist[0], neighbor[0], printSongDescription( neighbor_song_f[0], 1 )))
+
+ 
+
+    trip = list()
+    for i in range(len(t_cons_f)):
+        trip.append( ( p['invkey_distance_features'][i], p['distance_features'][i], t_cons_f[i], t_neighbor_f[i], t_cur_f[i] ) )
+    print trip
+
+       
+        
+    nb_disted = sorted(nb_disted) #key=itemgetter(0)    
 
    # randomly pick the next song according to probabilities which correspond to the distance between current and neighboring songs
-    xk = np.arange(len(dists))
-    pk = 1/(np.array(dists) + 10**p['noisyness'])
+
+    epsilon = 0.0001
+    xk = np.arange(len(nb_disted))
+    pk = (np.array([x[0] for x in nb_disted]) + epsilon) ** p['noisyness']
     pk /= sum(pk)
+    print (pk[:5]), sum(pk)
     custm = stats.rv_discrete(name='custm', values=(xk, pk))   
+
+    #print pk
+ 
+    p['debug_neighbors'] = list()
+    for i in range(len(nb_disted)):
+        desc = "0 %4.4f" % pk[i]
+        p['debug_neighbors'].append(desc +" "+ nb_disted[i][2])
+     
    
-    # randomize a few potential next songs - IMPLEMENT!
+    # randomize a few potential next songs
     ii        = list()
     ii.append(custm.rvs(size=1))
-    for j in range(min(len(dists)-1,p['suggestions_num'])):
+    p['debug_neighbors'][ii[-1]] = str(1) + p['debug_neighbors'][ii[-1]][1:]
+    print "i0 = " + str(xk[ii[-1]]), (pk[:5]), sum(pk)
+    for j in range(min(len(nb_disted),p['suggestions_num'])-1):
         # update the probability toward the choice of the next song byt remving the last chosen song
-        xk = np.concatenate((xk[:ii[j]],xk[ii[j]+1:]))
-        pk = np.concatenate((pk[:ii[j]],pk[ii[j]+1:]))
+        #xk = np.concatenate((xk[:ii[-1]],xk[ii[-1]+1:]))
+        #pk = np.concatenate((pk[:ii[-1]],pk[ii[-1]+1:]))
+        pk[ii[-1]] = 0
         pk /= sum(pk)
         custm = stats.rv_discrete(name='custm', values=(xk, pk))   
         ii.append(custm.rvs(size=1))
+        print "i"+ str(j+1) +" = " + str(xk[ii[-1]]), (pk[:5]), sum(pk)
+        
+        p['debug_neighbors'][ii[-1]] = str(2+j) + p['debug_neighbors'][ii[-1]][1:]
+
+
+    #p['debug_neighbors'] = sorted(p['debug_neighbors'])
+
+
         
     #for i in range(len(dists)):
     #    print isorted[i], dists[isorted[i]], pk[isorted[i]]
@@ -444,7 +494,7 @@ def pickNextSongs( cur, p, cur_song_id, mag, conservation=None, debug_print=0 ):
     #if debug_print==2:
      #   plt.plot( range(len(pk)), sorted(pk) )
    
-    next_song_ids = [ neighbor_songs[i][0] for i in ii]
+    next_song_ids = [ nb_disted[i][1] for i in ii]
 #    print next_song_ids
 
     return next_song_ids
