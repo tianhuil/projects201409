@@ -11,17 +11,22 @@
     <script src="http://code.jquery.com/jquery-latest.min.js"></script>
     <script type="text/javascript">
     $(document).ready(function(){
-        //alert("dgfdgdfg")
         var audio1 = document.getElementById('player');
-        audio1.volume=0.7
+        audio1.volume=0.8;
         audio1.addEventListener('pause',function(){
-            //alert("inside")
         $("#play_next").click();
+        })
+        var audio2 = document.getElementById('player');
+        audio2.addEventListener('error',function(){
+        {% if song_url %}  
+          $("#play_next").click()
+        {% endif %}
+        })
+        var search = document.getElementById('search')
+        search.addEventListener('search',function(){
         });
-        //var audio2 = document.getElementById('player');
-        audio1.addEventListener('error',function(){
-            //alert("inside")
-        $("#play_next").click();
+        var lucky = document.getElementById('lucky')
+        lucky.addEventListener('lucky',function(){
         });
     });
     </script>
@@ -42,7 +47,7 @@ body
    background-image: "{{url_for('static', filename='css/images/goodwp.com_17248_dark.jpg')}}";
    background-repeat: no-repeat;
    background-position: center top;
-   color: #DDDDDD;
+   color: #FFFFFF;
    font-family: Arial;
    font-size: 13px;
    margin: 0;
@@ -52,12 +57,12 @@ body
 <style type="text/css">
 a
 {
-   color: #FF77FF;
+   color: #FF00AA;
    text-decoration: none;
 }
 a:visited
 {
-   color: #800080;
+   color: #FF00AA;
 }
 a:active
 {
@@ -208,52 +213,52 @@ a:hover
 }
 </style>
 
-
-<!--
-   background-image: url("goodwp.com_17248_dark.jpg");
-   background-image: "{{ url_for('static', filename = 'css/images/goodwp.com_17248_dark.jpg') }}";
-
-       url("goodwp.com_17248_dark.jpg");
-
-   background-image: url(http://i.imgur.com/MQHYB.jpg);
-
-
--->
-
 </head>
 
+
 <body>
-
-
 
 <div id="container" style="position:absolute;left:0px">
     <div id="moshe">
         <img src="{{ url_for('static', filename = 'css/images/goodwp.com_17248_dark.jpg') }}" width="1300" height="800" alt="previous" title="Previous" border="0">
     </div>
 
-
    <div id="wb_Text1" style="position:absolute;left:37px;top:23px;width:202px;height:56px;text-align:center;z-index:0;">
-      <span style="color:#DDDDDD;font-family:Georgia;font-size:48px;">
+      <span style="color:#FFBB55;font-family:Georgia;font-size:48px;">
          <b>Bandura</b>
       </span>
    </div>
    <div id="wb_Text2" style="position:absolute;left:13px;top:85px;width:257px;height:36px;text-align:center;z-index:1;">
       <div style="line-height:24px;">
-         <span style="color:#DDDDDD;font-family:Georgia;font-size:20px;">
+         <span style="color:#FF9933;font-family:Georgia;font-size:20px;">
             Don't just listen - <b>Explore</b>!
          </span>
       </div>
    </div>
-   <div id="wb_MediaPlayer1" style="position:absolute;left:400px;top:87px;width:351px;height:60px;z-index:4;">
-      <audio src={{song_url}} id="player" style="width:550px; margin: 0; display:block;" autoplay preload="auto" type="audio/mp3" controls volume="0.1">
+   <div id="wb_MediaPlayer1" style="position:absolute;left:500px;top:87px;width:351px;height:20px;z-index:4;">
+    {% if song_url %}
+      <audio src="{{song_url}}" id="player" style="width:550px; margin: 0; display:block;" autoplay preload="auto" type="audio/mp3" controls volume="0.1"><!--{{song_url}}-->
+    {% else %}
+      <audio src="" id="player" style="width:550px; margin: 0; display:block;" autoplay preload="auto" type="audio/mp3" controls volume="0.1"><!--{{song_url}}-->
+    {% endif %}
       </audio>
    </div>
 
    <div id="wb_Text3" style="position:absolute;left:10px;top:130px;width:257px;height:27px;text-align:center;z-index:7;">
       <div style="line-height:18px;">
          <span style="color:#FFBBAA;font-family:Georgia;font-size:16px;">
-            <a href="./index.html">
-               project description
+            <a href="{{ url_for('static', filename = 'css/images/instructions.jpg') }}" target=newtab>
+               Usage instructions
+            </a>
+         </span>
+      </div>
+   </div>
+
+   <div id="wb_Text3" style="position:absolute;left:10px;top:153px;width:257px;height:27px;text-align:center;z-index:7;">
+      <div style="line-height:18px;">
+         <span style="color:#FFBBAA;font-family:Georgia;font-size:16px;">
+            <a href="https://www.youtube.com/watch?v=2wYoopZ1uTs" target=newtab>
+               Demo video
             </a>
          </span>
       </div>
@@ -286,38 +291,53 @@ a:hover
          <div style="line-height:18px;">
             <span style="color:#DDDDDD;font-family:Georgia;font-size:16px;">
                <input type="text"   id="search_term" name="search_term" value={{search_term}}>
-               <input type="submit" id="search"      name="search" value="submit">
+               <input type="submit" id="search"      name="search" value="Go!">
             </span>
          </div>
       </div>
    </form>
 
    <form action="/bandura_lucky" method="POST">
-      <div id="wb_Text6" style="position:absolute;left:435px;top:287px;width:700px;height:27px;z-index:11;text-align:left;">
+      <div id="wb_Text6" style="position:absolute;left:575px;top:287px;width:700px;height:27px;z-index:11;text-align:left;">
          <div style="line-height:18px;">
             <span style="color:#DDDDDD;font-family:Georgia;font-size:16px;">
-               <input type="submit" id="search"      name="search" value="Feelin' lucky">
+               <input type="submit" id="lucky"      name="lucky" value="Feelin' lucky!">
             </span>
          </div>
       </div>
    </form>
 
-
-
+   <form action="/bandura_pause" method="POST">
+      <div id="wb_Text6" style="position:absolute;left:750px;top:287px;width:700px;height:27px;z-index:11;text-align:left;">
+         <div style="line-height:18px;">
+            <span style="color:#DDDDDD;font-family:Georgia;font-size:16px;">
+               <input type="submit" id="pause"      name="pause" value="Pause">
+            </span>
+         </div>
+      </div>
+   </form>
 
    <form action="/bandura" method="POST" name="controls" id="controls">
 
-        <div id="moshe2" style="position:absolute;left:50px;top:173px;width:900px;height:100px;">
-            <img src="{{ url_for('static', filename = 'css/images/Picture1.png') }}" width="900" height="100" border="0">
+
+        <div id="play_start_sec" style="position:absolute;left:550px;top:120px;width:20px;height:20px;">
+            <input type="text"   id="play_start_sec" name="play_start_sec" value={{play_start_sec}}>
+        </div>
+        <div id="play_stop_sec" style="position:absolute;left:750px;top:120px;width:20px;height:20px;">
+            <input type="text"   id="play_stop_sec" name="play_stop_sec" value={{play_stop_sec}}>
         </div>
 
-      <div id="wb_Form1" style="position:absolute;left:50px;top:173px;width:900px;height:100px;z-index:8;">
+        <div id="moshe2" style="position:absolute;left:50px;top:173px;width:1000px;height:100px;">
+            <img src="{{ url_for('static', filename = 'css/images/Picture1.png') }}" width="980" height="100" border="0">
+        </div>
+
+      <div id="wb_Form1" style="position:absolute;left:50px;top:173px;width:980px;height:100px;z-index:8;">
          <br>
-         &nbsp;&nbsp <b>Diffusion</b> &nbsp;&nbsp;&nbsp;&nbsp Tempo &nbsp;&nbsp Loudness &nbsp;&nbsp Year &nbsp;&nbsp Familiarity &nbsp;&nbsp Valence &nbsp;&nbsp Energy &nbsp;&nbsp Danceability &nbsp;&nbsp Acousticness &nbsp;&nbsp Liveness &nbsp;&nbsp Speechiness &nbsp;&nbsp Instrumentalness<br>
-         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp <b>Diffusion</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp Tempo &nbsp;&nbsp Loudness &nbsp;&nbsp Year &nbsp;&nbsp Familiarity &nbsp;&nbsp Valence &nbsp;&nbsp Energy &nbsp;&nbsp Danceability &nbsp;&nbsp Acousticness &nbsp;&nbsp Liveness &nbsp;&nbsp Speechiness &nbsp;&nbsp Instrumentalness<br>
+         &nbsp;&nbsp;&nbsp;
          <input type="range" id="diffusion" name="noisyness" min="-4" max="0" step="0.1" value={{noisyness}} orient="vertical"
-         style="width: 20px; height: 60px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">
-         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+         style="width: 80px; height: 60px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">
+         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
          <input type="range" id="cons_tempo" name="cons_tempo" min="0" max="1" step="0.01" value={{cons_tempo}} orient="vertical"
          style="width: 10px; height: 60px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">
          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp
@@ -351,15 +371,13 @@ a:hover
          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp
          <input type="range" id="cons_instrumentalness" name="cons_instrumentalness" min="0" max="1" step="0.01" value={{cons_instrumentalness}} orient="vertical"
          style="width: 10px; height: 60px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">
-
       </div>
-
 
       <div id="wb_Text8" style="position:absolute;left:50px;top:377px;width:170px;height:100px;z-index:2;text-align:left;">
          <div style="line-height:18px;">
             <span style="color:#DDDDDD;font-family:Georgia;font-size:16px;">
               <u>Next track suggestions</u>: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp
-              <input type="submit" id="play_next"       name="play_next" value="skip to the next">
+              <input type="submit" id="play_next"       name="play_next" value="Go!">
             </span>
          </div>
       </div>      
@@ -375,10 +393,6 @@ a:hover
       </div>
 
    </form>
-
-
-
-    
 
    <div name="TextArea1" id="TextArea1" style="position:absolute;left:50px;top:500px;width:1600px;height:200px;z-index:5; font:12px/12px Courier; overflow:auto;" rows="8" cols="130">
     <u>tracks history</u>:<br>

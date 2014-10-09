@@ -1,27 +1,5 @@
 """
 
-This code creates a text file with all track ID, song ID, artist name and
-song name. Does it from the track_metadata.db
-format is:
-trackID<SEP>songID<SEP>artist name<SEP>song title
-
-This is part of the Million Song Dataset project from
-LabROSA (Columbia University) and The Echo Nest.
-
-Copyright 2010, Thierry Bertin-Mahieux
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import os
@@ -29,11 +7,8 @@ import sys
 
 os.chdir('/users/eyalshiv/DI/musixplore/src')
 
-#import glob
-#import string
 import time
 import datetime
-import numpy as np
 
 import psycopg2 as psy
 import pandas as pd
@@ -50,57 +25,25 @@ sys.path.append(MX_common.g_base_dir + '/src')
 sys.path.append(MX_common.g_base_dir + '/src/MSongsDB-master/PythonSrc')
 
 
-
 import hdf5_getters as GETTERS
-
-
-
-
 
 
 g_export = 0
 
-
-
 if __name__ == '__main__':
-
-    
-
-
-
-
-
-    # help menu
-#   if len(sys.argv) < 3:
-#        die_with_usage()
-
-    # params
 
     dbsongfeats_file = MX_common.g_base_dir + '/data/MillionSongSubset/AdditionalFiles/subset_msd_summary_file.h5'
     dbartsims_file   = MX_common.g_base_dir + '/data/MillionSongSubset/AdditionalFiles/subset_artist_similarity.db'
     workdir          = MX_common.g_base_dir + '/data/work'
-#    dbsongfeats_file    = sys.argv[1] # '/Users/eyalshiv/DI/musixplore/data/MillionSongSubset/AdditionalFiles/subset_msd_summary_file.h5'
-#    dbartsims_file      = sys.argv[2] # '/Users/eyalshiv/DI/musixplore/data/MillionSongSubset/AdditionalFiles/subset_artist_similarity.db'
-#    workdir             = sys.argv[3] # 'MXDB'
-
 
     os.chdir(workdir)
 
-
-
     tmp_csv_songs_file = 'df_MSD_songs.csv'
-#    tmp_csv_artists_file = 'df_artists.csv'
     tmp_csv_artist_id_similarities_file = 'df_MSD_artist_id_similarities.csv'
-#    tmp_csv_artist_similarities_file = 'df_artist_similarities.csv'
-
-   
 
 
     # start time
     t1 = time.time()
-
-
-
 
 # LOAD TRACKS FEATURES AND SAVE TO POSTGRESQL
 
@@ -108,22 +51,15 @@ if __name__ == '__main__':
     h5 = GETTERS.open_h5_file_read( dbsongfeats_file )
 
     nsongs = GETTERS.get_num_songs(h5)
-    # patch - temp
-#    nsongs = 10000;
-
 
     dsongs={'song_id:text': h5.root.metadata.songs.cols.song_id[0:nsongs],
             'track_id:text': h5.root.analysis.songs.cols.track_id[0:nsongs],
             'title:text': h5.root.metadata.songs.cols.title[0:nsongs],
             'track_7digitalid:text': h5.root.metadata.songs.cols.track_7digitalid[0:nsongs],
             'year:int': h5.root.musicbrainz.songs.cols.year[0:nsongs],
-#            'genre:text': h5.root.metadata.songs.cols.genre[0:nsongs],
-            #audio_md5, release, release_7digitalid
             
             'song_hotttnesss:real': h5.root.metadata.songs.cols.song_hotttnesss[0:nsongs],
-#            'danceability:real': h5.root.analysis.songs.cols.danceability[0:nsongs],
             'duration:real': h5.root.analysis.songs.cols.duration[0:nsongs],
-#            'energy:real': h5.root.analysis.songs.cols.energy[0:nsongs],
             'key:int': h5.root.analysis.songs.cols.key[0:nsongs],
             'key_confidence:real': h5.root.analysis.songs.cols.key_confidence[0:nsongs],
             'loudness:real': h5.root.analysis.songs.cols.loudness[0:nsongs],
@@ -141,16 +77,12 @@ if __name__ == '__main__':
             'artist_name:text': h5.root.metadata.songs.cols.artist_name[0:nsongs],
             'artist_hotttnesss:real': h5.root.metadata.songs.cols.artist_hotttnesss[0:nsongs],
             'artist_familiarity:real': h5.root.metadata.songs.cols.artist_familiarity[0:nsongs]
-            #similar_artists, artist_terms, artist_terms_freq, artist_terms_weight, artist_mbtags(h5,k), artist_mbtags_count, artist_mbid, artist_playmeid
             };
 
     # creae DataFrame to export table to csv
     dfsongs = pd.DataFrame(dsongs, columns=[\
     'song_id:text', 'track_id:text', 'title:text', 'track_7digitalid:text', 'year:int', 'song_hotttnesss:real', 'duration:real', 'key:int', 'key_confidence:real', 'loudness:real', 'mode:int', 'mode_confidence:real', 'tempo:real', 'time_signature:int', 'time_signature_confidence:real',\
     'artist_id:text', 'artist_7digitalid:text', 'artist_latitude:real', 'artist_longitude:real', 'artist_location:text', 'artist_name:text', 'artist_hotttnesss:real', 'artist_familiarity:real']);
-#    dfsongs = pd.DataFrame(dsongs, columns=[\
-#    'song_id:text', 'track_id:text', 'title:text', 'track_7digitalid:text', 'year:int', 'song_hotttnesss:real', 'danceability:real', 'duration:real', 'energy:real', 'key:int', 'key_confidence:real', 'loudness:real', 'mode:int', 'mode_confidence:real', 'tempo:real', 'time_signature:int', 'time_signature_confidence:real',\
-#    'artist_id:text', 'artist_7digitalid:text', 'artist_latitude:real', 'artist_longitude:real', 'artist_location:text', 'artist_name:text', 'artist_hotttnesss:real', 'artist_familiarity:real']);
 
     # patch some formatting issues in external input 
     dfsongs['song_hotttnesss:real'] = dfsongs['song_hotttnesss:real'].fillna(-1);
@@ -162,7 +94,6 @@ if __name__ == '__main__':
     dfsongs['artist_name:text'] = [t.replace(',',';') for t in dfsongs['artist_name:text']];
     dfsongs['artist_location:text'] = [t.replace(',',';') for t in dfsongs['artist_location:text']];
     dfsongs['title:text'] = [t.replace(',',';') for t in dfsongs['title:text']];
-
 
 
     # load acoustic features for each track
@@ -216,29 +147,16 @@ if __name__ == '__main__':
     
 
 
-
-
-
-
-
-
     # write to csv file as an intermediate
     pd.DataFrame.to_csv(dfsongs, tmp_csv_songs_file, index=False)    
 
     # open PostgreSQL
     conn_out = psy.connect("dbname='my_db_test' user='eyalshiv' host='localhost' password='' port=8787")
     conn_out.autocommit = True
-#    conn_out.rollback()
 
     cur = conn_out.cursor()
-#    cur.execute(q);   
 
-        
-    
-#    # read and prepare header line toward the import function    
-#    reader = csv.reader(open(tmp_csv_songs_file), delimiter=',')    
-#    header = [name.strip() for name in reader.next()] # first line in csv contains headers
-
+            
     MX_common.importFromDbCsv(conn_out, tmp_csv_songs_file, MX_common.song_features_table_name)
 
     cur.execute("CREATE INDEX "\
@@ -256,15 +174,6 @@ if __name__ == '__main__':
                 ON "\
                     +MX_common.song_features_table_name +" \
                 (track_7digitalid);")  
-#    cur.execute("CREATE INDEX "\
-#                    +MX_common.song_features_artist_id_index_name +" \
-#                ON "\
-#                    +MX_common.song_features_table_name +" \
-#                (artist_id);")  
-
-
-
-
 
 
 # LOAD ARTIST SIMILARITIES AND SAVE TO POSTGRESQL
@@ -275,8 +184,6 @@ if __name__ == '__main__':
     # from that connection, get a cursor to do queries
     # NOTE: we could query directly from the connection object
     cur = conn.cursor()
-
-    print '*************** GENERAL SQLITE DEMO ***************************'
 
     # list all tables in that dataset
     # note that sqlite does the actual job when we call fetchall() or fetchone()
@@ -297,15 +204,12 @@ if __name__ == '__main__':
     print '* indices in the database to make reads faster:'
     print res.fetchall()
 
-    print '*************** ARTISTS TABLE DEMO ****************************'
-
     # list all artist ID
     q = """SELECT   artist_id \
             FROM    artists"""
     res = cur.execute(q)
     print "* number of artist Echo Nest ID in 'artists' table:"
     print len(res.fetchall())
-
 
 
     conn_artfam = sqlite3.connect('../artist_similarity.db')
@@ -317,25 +221,11 @@ if __name__ == '__main__':
     cur.execute(q)
     similarities = cur.fetchall();
     
-#    z = np.asarray( similarities );
-#    artists = list(set( z.flatten() ));
-#
-#    cur = conn_out.cursor()
-#
-#    with open(tmp_csv_artists_file, 'wb') as f:
-#        writer = csv.writer(f)
-#        writer.writerow(['artist_id:text'])
-#        for artist in artists:
-#            writer.writerow([artist])
-#
-#    MX_common.importFromDbCsv(conn_out, tmp_csv_artists_file, MX_common.artists_table_name)
-
 
     with open(tmp_csv_artist_id_similarities_file, 'wb') as f:
         writer = csv.writer(f)
         writer.writerow(['targeto:text', 'similaro:text'])
         writer.writerows(similarities)
-
 
 
     MX_common.importFromDbCsv(conn_out, tmp_csv_artist_id_similarities_file, MX_common.artist_id_similarities_table_name)
@@ -356,10 +246,3 @@ if __name__ == '__main__':
     conn.close()
     conn_out.close()
     
-
-
-
-
-    # dump DB to allow transfer as a directiry to another machine
-
-
