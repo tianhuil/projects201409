@@ -1,0 +1,80 @@
+<!Doctype html>
+<html>
+<head>
+	<title>Searching and streaming with 7digital's API</title>
+	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript">
+	$(document).ready(function(){
+        // call 7digital's track search api using value from search box as search term
+        $("#search").click(function(){
+            $.getJSON("http://api.7digital.com/1.2/track/search",  // ask API to return json (accept header = application/json)
+            { 
+            	q: $("#term").val(),
+            	oauth_consumer_key: "YOUR_KEY_HERE",
+            	pageSize: 4 
+            })
+            .done(function(json){
+                 $("#results").empty(); // clear previous result
+                 $.each(json.searchResults.searchResult, function(key, sr) {
+                 	var track = sr.track;
+                 	$('<li><a class="preview" href="#" >' + 'Title: ' + track.title + '</a><br/>' 
+                 		+ 'Artist: ' + track.artist.name + '<br/>' 
+                 		+ 'Release: ' + track.release.title + '<br/>' 
+                 		+ '<input type="hidden" class="trackId" value="' + track.id + '" />' 
+                 		+ '</li>')
+                 	.appendTo('#results');    
+                 });
+             });
+        });
+        // when a track is clicked, get the preview URL and start to play it
+$("body").on("click", "a.preview", function(event){ // using on because link dynamically created
+    event.preventDefault(); // cancel the normal follow link behaviour
+    var song_id = $(this).siblings(".trackId").val();
+//    var names = [];
+//    $.each($(this).find('input, textarea'), function () {
+//        names.push(this.name);
+//    });
+    $("#user_play").attr("value", song_id);//song_id
+});
+});
+</script>
+
+</head>
+<body>
+	<input type="text" id="term">
+	<input type="submit" value="search" id="search"/>
+
+	<audio id="player" style="width:550px; margin: 0 auto; display:block;" type="audio/mp3" controls></audio>
+    
+    <form action="/play_test" method="POST">
+            <input type="text" placeholder="Enter 7digital ID" id="user_play" name="user_play" required value="Enter 7digital ID"/>
+            <button type="submit" name="choice" value="PlayThis">Play this</button>
+            <button type="submit" name="choice" value="PlayNext">Play next</button>
+    </form>
+
+    <input type="range" name="feature1" min="0" max="100" step="1" value="0" orient="vertical"
+  style="width: 10px; height: 100px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">
+    <input type="range" name="feature2" min="0" max="100" step="1" value="0" orient="vertical"
+  style="width: 10px; height: 100px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">
+    <input type="range" name="feature3" min="0" max="100" step="1" value="0" orient="vertical"
+  style="width: 10px; height: 100px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">
+    <input type="range" name="feature4" min="0" max="100" step="1" value="0" orient="vertical"
+  style="width: 10px; height: 100px; -webkit-appearance: slider-vertical; writing-mode: bt-lr;">
+    <ol id="results"></ol>
+
+</body>
+</html>
+
+<!--    $.get("http://api.7digital.com/1.2/track/preview",
+    {
+            trackId: $(this).siblings(".trackId").val(), // get track id from hidden field next to link in dom
+            redirect: false, // we don't want to be redirected to the file
+            oauth_consumer_key: "YOUR_KEY_HERE"
+        })
+    .done(function(xml) {
+        var url = $(xml).find("url").text();
+         $("#player").attr("src", url); // set url of song on player
+         $("#player").get(0).load(); // load song on player
+         $("#player").get(0).play(); // start player
+     });
+-->
