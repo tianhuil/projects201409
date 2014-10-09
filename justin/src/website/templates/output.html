@@ -1,0 +1,83 @@
+{% extends "test_site-bootstrap.html" %}
+{% block boxplot %}
+  
+<br>
+
+<!--Based on {{ samples }} trips.<br>-->
+<img src={{ url_for('make_figure', quantiles=quantiles, labels=labels, start=start_address,
+    end=end_address, day=day_name ) }} width="500" alt="Image Placeholder"><br>
+{% endblock %}
+
+{% block map %}
+    
+<!--<img src="{{ map_url }}"><br>-->
+<!-- <img src="{{ heatmap }}" width=600> -->
+
+<link type="text/css" rel="stylesheet" href="static/jquery-ui.min.css" />
+<link type="text/css" rel="stylesheet" href="static/map-slider.css" />
+
+<script type='text/javascript' src='static/jquery-2.1.1.min.js'></script>
+
+
+<div class="entry">
+<br><br>
+
+
+<!-- 
+    <div id="map-slider-wrapper">
+ -->
+        <div id="map-slider-labels">
+            {% for day in days %}
+            {% if day%24==0 %}
+            <span class="label-{{ day//24 }}">{{ days_of_week[day//24]}}</span><br />
+            {% endif %}
+            {% endfor %}
+
+        </div>
+
+        
+ 
+        <div id="map-slider-controls">
+        <div id="map-slider">
+        <div id="map-slider-images">
+        
+            {% for day in days %}
+            <img id="map-slider-image-{{ 167 - day }}" 
+                src="static/img/hex-{{ day//24 }}-{{ day%24 }}-overlay.png"
+                style="display: none" />
+
+            {% endfor %}
+
+        
+        </div>		
+        </div>	
+        </div>
+
+
+
+
+
+<script type="text/javascript" src="static/jquery-ui.min.js"></script>
+<script type="text/javascript" src="static/map-slider.js"></script>
+<script type="text/javascript"> var start_val={{ 167 - (24*day+hour) }}; </script>
+
+<style type="text/css">
+.marker {
+    margin-top: {{ -23+500*(40.8143615-start_lat)/0.1279635 }}px;
+    margin-left: {{ -7+250*(start_lon+74.021865)/0.085316}}px;
+    font-size: 30px;
+    position: absolute;
+}
+</style>
+
+<div class="marker">
+&#9675;
+</div>
+
+{% endblock %}
+
+{% block colorbar %}
+<br><br>
+<img src="static/colorbar-2.png" height="250">
+
+{% endblock %}
