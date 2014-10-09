@@ -7,11 +7,7 @@ import numpy as np
 import itertools
 
 # Load in all event history from the 4 files below and merge them.
-df_4 = pd.read_csv('RAevent_data4.csv', delim_whitespace=True,error_bad_lines=False)
-df_3 = pd.read_csv('RAevent_data3.csv', delim_whitespace=True,error_bad_lines=False)
-df_2 = pd.read_csv('RAevent_data2.csv', delim_whitespace=True,error_bad_lines=False)
-df_1 = pd.read_csv('RAevent_data1.csv', delim_whitespace=True,error_bad_lines=False)
-mylist = [df_1, df_2, df_3, df_4]
+mylist = [pd.read_csv('RAevent_data%d.csv' % i, delim_whitespace=True, error_bad_lines=False) for i in range(1,4)]
 df_f = pd.concat(mylist).drop_duplicates()
 
 # These are the future urls - must be modified depending on date.
