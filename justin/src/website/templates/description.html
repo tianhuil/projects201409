@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="static/favicon.ico?v=1">
+
+    <title>NYC Taxi trip time estimator</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="static/bootstrap-3.2.0-dist/css/bootstrap.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="static/custom.css" rel="stylesheet">
+
+  </head>
+
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">NYC Taxi trip time estimator</a>
+        </div>
+        <div class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li><a class="active" href="description">Description</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+            <br><br>
+            <h4>The Basic Problem</h4>
+            You want to hail a taxi somewhere in New York City to get to an important
+            meeting. The first order of business is to find an available cab&mdash;not always
+            an easy task. Then, after finding a cab, you
+            need to hope that you've given yourself enough time for whatever traffic
+            conditions happen to be. The goal of this project is to visualize real world 
+            taxi data in a way that is relevant to solving both of these problems.
+            <br><br>
+            Detailed information about every taxi trip taken in New York City during 2013 
+            <a href="http://chriswhong.com/open-data/foil_nyc_taxi/">is publicly 
+            available</a>. Among other things, this dataset contains the latitude and longitude 
+            coordinates as well as the precise time for the beginning and end of each of
+            more than 170 million trips. This is more data than can be held
+            in memory on a typical laptop, so part of undertaking this project is dealing
+            with the problems that arise when encountering big datasets, using Map Reduce
+            or any other techniques at our disposal.
+            
+            <br><br>
+            
+            <h4>Cab Availability</h4>
+            
+            The dark regions in the heatmaps on the right are meant to represent the best 
+            places to look for a cab. There is nothing in the data we have, however,
+            about how long people were waiting before they managed to hailed a taxi (or how 
+            many people gave up looking completely). So how were these maps constructed?            
+            When you don't have the data you want, it can help to rephrase the question.
+            In this case, a good proxy for what we want would be a measure of how often an 
+            unoccupied taxi looking for a fare
+            will drive by our position on the street. In the simplest case this will depend
+            on three things, but fortunately all things we can measure:
+            the number of cabs on the street, the amount of time the cabs spend driving
+            between fares, and the speed that traffic moves down the street.
+            
+            <br><br>
+            
+            We know directly from the data how many taxis picked up passengers in each part of 
+            the city during a given hour. This gives us a good
+            measure of the number of cabs in a given area, but obviously this is not enough
+            information to draw any conclusions about how easy it will be to find a cab. 
+            Perhaps there are lots of taxis picking people up in an area because there
+            are so many people looking for rides, and most people looking give up in
+            frustration.
+            
+            <br><br>
+            
+            We also, after sorting the data, are able to determine the typical time it 
+            takes after dropping a passenger off before the next passenger is found. This 
+            is actually a little subtle---how long of a break should it be before we
+            conclude that the driver is not really looking for another passenger?
+            This time, when multiplied by the number of cabs in an area, gives a measure of how
+            much total time cabs spend searching for fares.
+            
+            <br><br>
+            
+            The last step is to account for the fact that time spent looking for 
+            passengers is not all equal. Faster traffic means that available cabs cover
+            more ground in the same amount of time, and are therefore more likely to pass
+            you standing by the side of the road. Multiplying the total time spent
+            searching for fares by the speed
+            
+            <br><br>
+
+            <h4>Trip Time</h4>
+            
+            Estimating trip times between different locations in the city is seemingly
+            more straightforward. Suppose we are restrict our attention to trips leaving
+            Tuesday at 10 AM. The basic approach is to divide the city up into a grid based on latitude 
+            and longitude coordinates. There is a careful balance to strike here, though, between
+            making the grid small enough to get as detailed information as possible, while
+            also large enough to ensure there are a meaningful number of trips between every
+            pair of boxes. Using the whole city as one big box is boring and 
+            uninformative, while making each box the size of a city block means there will
+            be very few trips to draw any conclusions from.
+            <br><br>
+            
+            For the taxi data, the grid size that gave the best tradeoff was slightly larger than
+            half a mile on each side. This is still fairly large---large enough that we
+            should be skeptical whether two trips that we are pigeonholing together because
+            they start and end in the same boxes are actually very similar. They can differ 
+            by over a mile, for example. But we can actually do better than saying that
+            "trips starting near Penn Staion and ending near the Met" typically take  
+            25 minutes. While we might expect a trip starting several
+            blocks away and going to the same destination to take a different amount of
+            time, we might be more willing to expect it to go at roughly the same speed.
+            From this observation, we can see that what we really want to keep track
+            of are the distributions of speeds (and not times) between different parts of 
+            the city. Given that we know the distance of our trip, once we know the 
+            distribution of speeds we can infer the distribution of times. 
+            
+            <br><br>
+            
+
+            
+        </div>
+        
+        <div class="col-md-6">
+            <br><br><br>
+            <img src="/static/img/hex-4-7-overlay.png" width=260>
+            <img src="/static/img/hex-4-11-overlay.png" width=260>
+            <br><br>
+            <img src="/static/img/hex-4-17-overlay.png" width=260>
+            <img src="/static/img/hex-4-21-overlay.png" width=260>
+        </div>
+<!-- 
+        <div class="col-md-1">
+            <br><br><br><br>
+        </div>
+ -->
+      </div>
+    </div>
+    
+
+
+

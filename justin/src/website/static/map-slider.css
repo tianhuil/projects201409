@@ -1,0 +1,78 @@
+.ui-slider-vertical {
+    position: absolute;
+    margin-left: 265px;
+    height: 500px;
+    width: 1px;
+
+/* 
+    padding-right: 15px; //add this
+ */
+
+}
+
+
+.ui-slider-vertical .ui-slider-handle {
+    outline: none;
+    height: 10px;
+    width: 5px;
+    padding-left: 8px; //add this
+
+}
+
+#map-slider-controls {
+	padding: 0 px;
+}
+
+#map-slider-images {
+    position: absolute;
+    margin-left: -265px;
+}
+
+#map-slider-labels {
+	position: absolute;
+	width: 20px;
+	height:500px;
+	margin-left: 300px;
+	font-size: 13px;
+}
+
+#map-slider-labels span {
+	position: absolute;
+	top: 0;
+	width: 34px;
+	margin-left: -16px;
+	text-align: center;
+}
+
+/* 
+ label-x at (24x+12)/168
+ */
+
+#map-slider-labels .label-0 {
+	top: 7.14%;
+}
+
+#map-slider-labels .label-1 {
+	top: 21.43%;
+}
+
+#map-slider-labels .label-2 {
+	top: 35.71%;
+}
+
+#map-slider-labels .label-3 {
+	top: 50%;
+}
+
+#map-slider-labels .label-4 {
+	top: 64.29%;
+}
+
+#map-slider-labels .label-5 {
+	top: 78.57%;
+}
+
+#map-slider-labels .label-6 {
+	top: 93.86%;
+}
+

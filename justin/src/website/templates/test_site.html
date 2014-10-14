@@ -1,0 +1,49 @@
+<!doctype html>
+<title> NYC Taxi trip time estimator</title>
+<link rel="stylesheet" type="text/css" href="../static/test_style.css">
+<div class=page>
+    <h1>NYC Taxi trip time estimator</h1>
+    <div class=user_input>
+    <form action="/output" method="post">
+        <br>
+        Where do you want to start? <br> <!-- Use google geocoding (with cache?)-->
+        <input type="text" name="start_point" size="50" maxlength="50"> <br>
+        Where do you want to go? <br>
+        <input type="text" name="end_point" size="50" maxlength="50"> <br>
+        What day of the week are you leaving?<br>
+        <select name="day"> <br>
+            <option value=0>Monday</option>
+            <option value=1>Tuesday</option>
+            <option value=2>Wednesday</option>
+            <option value=3>Thursday</option>
+            <option value=4>Friday</option>
+            <option value=5>Saturday</option>
+            <option value=6>Sunday</option>
+        </select><br>
+        What time are you leaving?<br>
+       <select name="hour"> <br>
+            <option value=0>12:00</option>
+            <option value=1>1:00</option>
+            <option value=2>2:00</option>
+            <option value=3>3:00</option>
+            <option value=4>4:00</option>
+            <option value=5>5:00</option>
+            <option value=6>6:00</option>
+            <option value=7>7:00</option>
+            <option value=8>8:00</option>
+            <option value=9>9:00</option>
+            <option value=10>10:00</option>
+            <option value=11>11:00</option>
+        </select>
+        <input type="radio" name="ampm" value="am" checked="checked">AM</input>
+        <input type="radio" name="ampm" value="pm">PM</input>
+        <br><br>
+        <input type="submit" value="Submit">
+    </form>
+    </div>
+    <br>
+    <div class=site_output>
+       {% block output %}{% endblock %} 
+    </div>
+    
+</div>
