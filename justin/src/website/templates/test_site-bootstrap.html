@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="static/favicon.ico?v=1">
+
+    <title>NYC Taxi trip time estimator</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="static/bootstrap-3.2.0-dist/css/bootstrap.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="static/custom.css" rel="stylesheet">
+
+  </head>
+
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">NYC Taxi trip time estimator</a>
+        </div>
+        <div class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="description">Description</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6 nopadding">
+          <form action="/output" method="post">
+                <br><br>
+                Where do you want to start? <br> 
+                <input type="text" name="start_point" size="50" maxlength="50"
+                        value="{{ default_start }}"/> <br>
+                Where do you want to go? <br>
+                <input type="text" name="end_point" size="50" maxlength="50"
+                        value="{{ default_dest }}"> <br>
+                When are you leaving?<br>
+                <select name="day"> <br>
+                    <option value=0 {{ day_sel[0] }}>Monday</option>
+                    <option value=1 {{ day_sel[1] }}>Tuesday</option>
+                    <option value=2 {{ day_sel[2] }}>Wednesday</option>
+                    <option value=3 {{ day_sel[3] }}>Thursday</option>
+                    <option value=4 {{ day_sel[4] }}>Friday</option>
+                    <option value=5 {{ day_sel[5] }}>Saturday</option>
+                    <option value=6 {{ day_sel[6] }}>Sunday</option>
+                </select><br>
+               <select name="hour"> <br>
+                    <option value=0 {{ hour_sel[0] }}>12:00</option>
+                    <option value=1 {{ hour_sel[1] }}>1:00</option>
+                    <option value=2 {{ hour_sel[2] }}>2:00</option>
+                    <option value=3 {{ hour_sel[3] }}>3:00</option>
+                    <option value=4 {{ hour_sel[4] }}>4:00</option>
+                    <option value=5 {{ hour_sel[5] }}>5:00</option>
+                    <option value=6 {{ hour_sel[6] }}>6:00</option>
+                    <option value=7 {{ hour_sel[7] }}>7:00</option>
+                    <option value=8 {{ hour_sel[8] }}>8:00</option>
+                    <option value=9 {{ hour_sel[9] }}>9:00</option>
+                    <option value=10 {{ hour_sel[10] }}>10:00</option>
+                    <option value=11 {{ hour_sel[11] }}>11:00</option>
+                </select>
+                <input type="radio" name="ampm" value="am" {{ checked[0] }}>AM</input>
+                <input type="radio" name="ampm" value="pm" {{ checked[1] }}>PM</input><br><br>   
+                <input type="submit" value="Submit">
+            </form>
+            {% block boxplot %}{% endblock %}
+        </div>
+        <div class="col-md-1">
+            {% block colorbar %}{% endblock %} 
+       </div>
+        <div class="col-md-4">
+            {% block map %}{% endblock %} 
+       </div>
+
+      </div>
+
+      <hr>
+
+    </div> <!-- /container -->
